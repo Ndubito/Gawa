@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+/services/api/gawa/node_modules
+/services/api/gawa/dist
+
 # Logs
 logs
 *.log
