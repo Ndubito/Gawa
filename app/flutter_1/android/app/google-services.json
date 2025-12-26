@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "868266579548",
+    "project_id": "gawa-8e84a",
+    "storage_bucket": "gawa-8e84a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868266579548:android:0b6c75375c3153cac13899",
+        "android_client_info": {
+          "package_name": "com.example.flutter_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJ5KHPQ3Jye-tzeBJdsweB7netWalJTfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
