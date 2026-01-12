@@ -71,12 +71,12 @@ class HomePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Next Charge Section
-                          headingText(
+                          HeadingText(
                             text: 'Next Charge'
                           ),
                           const SizedBox(height: 12),
 
-                          chargeCard(
+                          ChargeCard(
                             price: '20,000 ksh',
                             subscription: "Nathan's Allowance",
                             dueDate: 'April  24',
@@ -86,11 +86,11 @@ class HomePage extends StatelessWidget {
                           const SizedBox(height: 24),
 
                           // Action Required Section
-                          headingText(
+                          HeadingText(
                             text: 'Action Required'
                           ),
                           const SizedBox(height: 12),
-                          chargeCard(
+                          ChargeCard(
                             price: '200 ksh',
                             subscription: 'ICloud family',
                             dueDate: '21 June',
@@ -100,24 +100,24 @@ class HomePage extends StatelessWidget {
                           const SizedBox(height: 24),
 
                           // Quick Actions Section
-                          headingText(
+                          HeadingText(
                             text: 'Quick Actions'
                           ),
                           const SizedBox(height: 12),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              quickActionCard(
+                              QuickActionCard(
                                 icon: Icons.group_add_outlined,
                                 label: 'Create group',
                                 onTap: () {},
                               ),
-                              quickActionCard(
+                              QuickActionCard(
                                 icon: Icons.shopping_bag_outlined,
                                 label: 'Create New\nSubscription',
                                 onTap: () {},
                               ),
-                              quickActionCard(
+                              QuickActionCard(
                                 icon: Icons.person_add_outlined,
                                 label: 'Invite a Member',
                                 onTap: () {},
@@ -137,9 +137,12 @@ class HomePage extends StatelessWidget {
           ),
 
           // Floating Bottom Navigation
-          bottomNavigation(),
+          BottomNavigation(),
         ],
       ),
     );
   }
 }
+
+
+  

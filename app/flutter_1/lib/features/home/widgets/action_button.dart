@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 
-Widget actionButton({
-  required String text,
-  required VoidCallback onPressed,
-})
+class ActionButton extends StatelessWidget{
+
+  final VoidCallback onPressed;
+  final String text;
+
+  const ActionButton({
+    super.key,
+    required  this.onPressed,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context)
   {
     return Align(
       alignment: Alignment.centerRight,
@@ -28,3 +37,4 @@ Widget actionButton({
       ),
     );
   }
+}

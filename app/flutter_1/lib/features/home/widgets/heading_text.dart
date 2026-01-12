@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 
-Widget headingText({
-  required String text,
+class HeadingText extends StatelessWidget{
+  final String text;
+  
+  const HeadingText({
+    super.key,
+    required this.text,
+  });
 
-  })
+  @override
+  Widget build (BuildContext context)
  {
     return Text(
       text,
@@ -14,3 +20,4 @@ Widget headingText({
       ),
     );
   }
+}

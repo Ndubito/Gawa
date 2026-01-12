@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 
-Widget quickActionCard({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
+class QuickActionCard extends StatelessWidget{
+
+    final IconData icon;
+    final String label;
+    final VoidCallback onTap;
+   
+  const QuickActionCard({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+    @override
+    Widget build(BuildContext context){
     return SizedBox(
       width: 105,
       height: 105,
@@ -47,4 +57,4 @@ Widget quickActionCard({
         ),
       ),
     );
-  }
+  }}
