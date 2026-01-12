@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'widgets/quick_action_card.dart';
+import 'widgets/charge_card.dart';
+import 'widgets/heading_text.dart';
+import 'widgets/bottom_navigation.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -68,211 +71,53 @@ class HomePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Next Charge Section
-                          const Text(
-                            'Next Charge',
-                            style: TextStyle(
-                              color: Color(0xFF2d3561),
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          headingText(
+                            text: 'Next Charge'
                           ),
                           const SizedBox(height: 12),
-                          Card(
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: const [
-                                        Text(
-                                          "200 ksh",
-                                          style: TextStyle(
-                                            fontSize: 32,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          "ICloud Family",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          "Due April 24",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green.withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: const Text(
-                                      'Paid',
-                                      style: TextStyle(
-                                        color: Colors.green,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+
+                          chargeCard(
+                            price: '20,000 ksh',
+                            subscription: "Nathan's Allowance",
+                            dueDate: 'April  24',
+                            status: 'Paid',
                           ),
 
                           const SizedBox(height: 24),
 
                           // Action Required Section
-                          const Text(
-                            'Action Required',
-                            style: TextStyle(
-                              color: Color(0xFF2d3561),
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          headingText(
+                            text: 'Action Required'
                           ),
                           const SizedBox(height: 12),
-                          Card(
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: const [
-                                            Text(
-                                              "200 ksh",
-                                              style: TextStyle(
-                                                fontSize: 32,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            SizedBox(height: 4),
-                                            Text(
-                                              "Nathan's Allowance",
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            SizedBox(height: 4),
-                                            Text(
-                                              "Due April 24",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red.withOpacity(0.15),
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'Failed',
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: ElevatedButton(
-                                      onPressed: () {},
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(
-                                          0xFF2d3561,
-                                        ),
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 24,
-                                          vertical: 12,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                      ),
-                                      child: const Text('Retry Payment'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                          chargeCard(
+                            price: '200 ksh',
+                            subscription: 'ICloud family',
+                            dueDate: '21 June',
+                            status: 'Failed',
                           ),
 
                           const SizedBox(height: 24),
 
                           // Quick Actions Section
-                          const Text(
-                            'Quick Actions',
-                            style: TextStyle(
-                              color: Color(0xFF2d3561),
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          headingText(
+                            text: 'Quick Actions'
                           ),
                           const SizedBox(height: 12),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              QuickActionCard(
+                              quickActionCard(
                                 icon: Icons.group_add_outlined,
                                 label: 'Create group',
                                 onTap: () {},
                               ),
-                              QuickActionCard(
+                              quickActionCard(
                                 icon: Icons.shopping_bag_outlined,
                                 label: 'Create New\nSubscription',
                                 onTap: () {},
                               ),
-                              QuickActionCard(
+                              quickActionCard(
                                 icon: Icons.person_add_outlined,
                                 label: 'Invite a Member',
                                 onTap: () {},
@@ -292,72 +137,7 @@ class HomePage extends StatelessWidget {
           ),
 
           // Floating Bottom Navigation
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 16,
-            child: Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 400),
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.home_outlined,
-                        color: Color(0xFF4a9fd8),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.people_outline,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.shopping_bag_outlined,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.notifications_outlined,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.person_outline,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          bottomNavigation(),
         ],
       ),
     );

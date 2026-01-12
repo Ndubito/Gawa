@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Widget QuickActionCard({
+Widget quickActionCard({
     required IconData icon,
     required String label,
     required VoidCallback onTap,
@@ -12,12 +12,12 @@ Widget QuickActionCard({
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withValues(alpha: 0.1),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          splashColor: const Color(0xFF4a9fd8).withOpacity(0.12),
-          highlightColor: const Color(0xFF4a9fd8).withOpacity(0.06),
+          splashColor: const Color(0xFF4a9fd8).withValues(alpha:0.12),
+          highlightColor: const Color(0xFF4a9fd8).withValues(alpha:0.06),
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
@@ -25,10 +25,7 @@ Widget QuickActionCard({
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4a9fd8).withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
+
                   child: Icon(icon, color: const Color(0xFF4a9fd8), size: 24),
                 ),
                 const SizedBox(height: 8),
