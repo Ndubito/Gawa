@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_1/features/auth/login_page.dart';
-import 'package:flutter_1/features/auth/register_page.dart';
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

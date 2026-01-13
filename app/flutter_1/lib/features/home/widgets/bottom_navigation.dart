@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_1/features/home/home_page.dart';
+import '../../groups/pages/groups_page.dart';
 
 class BottomNavigation extends StatelessWidget {
-
   const BottomNavigation({super.key});
 
   @override
@@ -14,16 +15,13 @@ class BottomNavigation extends StatelessWidget {
         child: Container(
           constraints: const BoxConstraints(maxWidth: 400),
           margin: const EdgeInsets.symmetric(horizontal: 20),
-          padding: const EdgeInsets.symmetric(
-            vertical: 12,
-            horizontal: 8,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.15),
+                color: Colors.black.withValues(alpha: 0.15),
                 blurRadius: 20,
                 offset: const Offset(0, 4),
               ),
@@ -33,18 +31,22 @@ class BottomNavigation extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.home_outlined,
-                  color: Color(0xFF4a9fd8),
-                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomePage()),
+                  );
+                },
+                icon: const Icon(Icons.home_outlined, color: Color(0xFF4a9fd8)),
               ),
               IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.people_outline,
-                  color: Colors.grey,
-                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const GroupsPage()),
+                  );
+                },
+                icon: const Icon(Icons.people_outline, color: Colors.grey),
               ),
               IconButton(
                 onPressed: () {},
@@ -62,10 +64,7 @@ class BottomNavigation extends StatelessWidget {
               ),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(
-                  Icons.person_outline,
-                  color: Colors.grey,
-                ),
+                icon: const Icon(Icons.person_outline, color: Colors.grey),
               ),
             ],
           ),
@@ -74,5 +73,3 @@ class BottomNavigation extends StatelessWidget {
     );
   }
 }
-
-

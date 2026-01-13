@@ -1,5 +1,6 @@
   import 'package:flutter/material.dart';
   import 'action_button.dart';
+  import 'status_pill.dart';
 
   class ChargeCard extends StatelessWidget{
     final String price;
@@ -57,25 +58,7 @@
                   ),
                 ),
     
-                 Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-    
-                        decoration: BoxDecoration(
-                          color: pillColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          status,
-                          style: TextStyle(
-                            color: pillColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                          ),
-                        ),
-                      )
+                 StatusPill(pillColor: pillColor, status: status)
               ],
             ),
             const SizedBox(height: 12),
@@ -88,3 +71,4 @@
     );
   }
   }
+

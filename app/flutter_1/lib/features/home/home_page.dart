@@ -25,7 +25,7 @@ class HomePage extends StatelessWidget {
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
-                      color: const Color(0xFF2d3561),
+                      color: const Color(0xFFe8e9ed),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -35,7 +35,7 @@ class HomePage extends StatelessWidget {
                               Text(
                                 "Hi, Nathan!",
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: const Color(0xFF2d3561),
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -44,7 +44,7 @@ class HomePage extends StatelessWidget {
                               Text(
                                 "Welcome to Gawa",
                                 style: TextStyle(
-                                  color: Colors.white70,
+                                  color: const Color(0xFF2d3561),
                                   fontSize: 14,
                                 ),
                               ),
@@ -54,7 +54,7 @@ class HomePage extends StatelessWidget {
                             onPressed: () {},
                             icon: const Icon(
                               Icons.notifications_outlined,
-                              color: Colors.white,
+                              color:Color(0xFF2d3561),
                               size: 28,
                             ),
                           ),
