@@ -22,79 +22,74 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF1a1a2e),
-      body: Stack(
-        children: [
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: SafeArea(
-                child: Container(
-                  color: const Color(0xFFe8e9ed),
-                  child: Column(
-                    children: [
-                      // Header
-                      GroupDetailsHeader(),
-          
-                      // Scrollable content
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(20),
-          
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Total Amount Card
-                              TotalAmountCard(),
-                              const SizedBox(height: 24),
-          
-                              // Members Section (Collapsible)
-                              MembersSection(
-                                membersExpanded: memebersExpanded,
-                                onToggle: () {
-                                  setState(() {
-                                    memebersExpanded = !memebersExpanded;
-                                  });
-                                },
-                              ),
-          
-                              const SizedBox(height: 12),
-          
-                              // Payout Destination (Organizer View)
-                              PayoutDestination(),
-          
-                              const SizedBox(height: 12),
-          
-                              // Billing Rules (Collapsible)
-                              BillingRules(
-                                rulesExpanded: rulesExpanded,
-                                onToggle: () {
-                                  setState(() {
-                                    rulesExpanded = !rulesExpanded;
-                                  });
-                                },
-                              ),
-                              const SizedBox(height: 24),
-          
-                              // Invite Member Button
-                              LongActionButton(
-                                icon: const Icon(Icons.person_add_outlined),
-                                buttonLabel: Text('Invite Member'),
-                                onClick: () {},
-                              ),
-
-                              SizedBox(height: 80,)
-                            ],
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 440),
+          child: SafeArea(
+            child: Container(
+              color: const Color(0xFFe8e9ed),
+              child: Column(
+                children: [
+                  // Header
+                  GroupDetailsHeader(),
+      
+                  // Scrollable content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+      
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Total Amount Card
+                          TotalAmountCard(),
+                          const SizedBox(height: 24),
+      
+                          // Members Section (Collapsible)
+                          MembersSection(
+                            membersExpanded: memebersExpanded,
+                            onToggle: () {
+                              setState(() {
+                                memebersExpanded = !memebersExpanded;
+                              });
+                            },
                           ),
-                        ),
+      
+                          const SizedBox(height: 12),
+      
+                          // Payout Destination (Organizer View)
+                          PayoutDestination(),
+      
+                          const SizedBox(height: 12),
+      
+                          // Billing Rules (Collapsible)
+                          BillingRules(
+                            rulesExpanded: rulesExpanded,
+                            onToggle: () {
+                              setState(() {
+                                rulesExpanded = !rulesExpanded;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 24),
+      
+                          // Invite Member Button
+                          LongActionButton(
+                            icon: const Icon(Icons.person_add_outlined),
+                            buttonLabel: Text('Invite Member'),
+                            onClick: () {},
+                          ),
+
+                          SizedBox(height: 80,)
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
-          BottomNavigation(),
-        ],
+        ),
       ),
     );
   }

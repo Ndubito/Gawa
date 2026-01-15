@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_1/features/home/home_page.dart';
-import '../../groups/pages/groups_page.dart';
 
 class BottomNavigation extends StatelessWidget {
-  const BottomNavigation({super.key});
+  final int selectedIndex;
+  final Function(int) onItemSelected;
+
+  const BottomNavigation({
+    super.key,
+    required this.selectedIndex,
+    required this.onItemSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,40 +36,49 @@ class BottomNavigation extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomePage()),
-                  );
-                },
-                icon: const Icon(Icons.home_outlined, color: Color(0xFF4a9fd8)),
+                onPressed: () => onItemSelected(0),
+                icon: Icon(
+                  Icons.home_outlined,
+                  color: selectedIndex == 0
+                      ? const Color(0xFF4a9fd8)
+                      : Colors.grey,
+                ),
               ),
               IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const GroupsPage()),
-                  );
-                },
-                icon: const Icon(Icons.people_outline, color: Colors.grey),
+                onPressed: () => onItemSelected(1),
+                icon: Icon(
+                  Icons.people_outline,
+                  color: selectedIndex == 1
+                      ? const Color(0xFF4a9fd8)
+                      : Colors.grey,
+                ),
               ),
               IconButton(
-                onPressed: () {},
-                icon: const Icon(
+                onPressed: () => onItemSelected(2),
+                icon: Icon(
                   Icons.shopping_bag_outlined,
-                  color: Colors.grey,
+                  color: selectedIndex == 2
+                      ? const Color(0xFF4a9fd8)
+                      : Colors.grey,
                 ),
               ),
               IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.notifications_outlined,
-                  color: Colors.grey,
+                onPressed: () => onItemSelected(3),
+                icon: Icon(
+                  Icons.history, // Activity
+                  color: selectedIndex == 3
+                      ? const Color(0xFF4a9fd8)
+                      : Colors.grey,
                 ),
               ),
               IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.person_outline, color: Colors.grey),
+                onPressed: () => onItemSelected(4),
+                icon: Icon(
+                  Icons.person_outline,
+                  color: selectedIndex == 4
+                      ? const Color(0xFF4a9fd8)
+                      : Colors.grey,
+                ),
               ),
             ],
           ),
