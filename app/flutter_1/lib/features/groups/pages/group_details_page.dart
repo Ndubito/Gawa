@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../widgets/members_section.dart';
-import '../../home/widgets/bottom_navigation.dart';
 import '../widgets/group_details_header.dart';
 import '../widgets/total_amount_card.dart';
 import '../widgets/payout_destination.dart';

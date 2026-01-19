@@ -15,7 +15,7 @@ class HomePage extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1a1a2e),
+      backgroundColor: colors.surface,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
@@ -25,18 +25,17 @@ class HomePage extends StatelessWidget {
                 // Header
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  color: const Color(0xFFe8e9ed),
+                  padding: EdgeInsets.only(left: 20, right: 20, top: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             "Hi, Nathan!",
                             style: TextStyle(
-                              color: Color(0xFF2d3561),
+                              color: colors.onSurface,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
@@ -45,7 +44,7 @@ class HomePage extends StatelessWidget {
                           Text(
                             "Welcome to Gawa",
                             style: TextStyle(
-                              color: Color(0xFF2d3561),
+                              color: colors.primary,
                               fontSize: 14,
                             ),
                           ),
@@ -53,9 +52,9 @@ class HomePage extends StatelessWidget {
                       ),
                       IconButton(
                         onPressed: () {},
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.notifications_outlined,
-                          color: Color(0xFF2d3561),
+                          color: colors.onSurface,
                           size: 28,
                         ),
                       ),
@@ -67,14 +66,12 @@ class HomePage extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
-                  color: const Color(0xFFe8e9ed),
+                  color: colors.surface,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Next Charge Section
-                      const HeadingText(
-                        text: 'Next Charge'
-                      ),
+                      const HeadingText(text: 'Next Charge'),
                       const SizedBox(height: 12),
 
                       const ChargeCard(
@@ -87,9 +84,7 @@ class HomePage extends StatelessWidget {
                       const SizedBox(height: 24),
 
                       // Action Required Section
-                      const HeadingText(
-                        text: 'Action Required'
-                      ),
+                      const HeadingText(text: 'Action Required'),
                       const SizedBox(height: 12),
                       const ChargeCard(
                         price: '200 ksh',
@@ -101,9 +96,7 @@ class HomePage extends StatelessWidget {
                       const SizedBox(height: 24),
 
                       // Quick Actions Section
-                      const HeadingText(
-                        text: 'Quick Actions'
-                      ),
+                      const HeadingText(text: 'Quick Actions'),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -112,7 +105,7 @@ class HomePage extends StatelessWidget {
                             icon: Icons.group_add_outlined,
                             label: 'Create group',
                             onTap: () {
-                               Navigator.push(
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const CreateGroupPage(),
@@ -127,7 +120,8 @@ class HomePage extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const CreateSubscriptionWizard(),
+                                  builder: (context) =>
+                                      const CreateSubscriptionWizard(),
                                 ),
                               );
                             },
@@ -136,8 +130,8 @@ class HomePage extends StatelessWidget {
                             icon: Icons.person_add_outlined,
                             label: 'Invite a Member',
                             onTap: () {
-                               // Start with groups page for context
-                               Navigator.push(
+                              // Start with groups page for context
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const GroupsPage(),
@@ -147,9 +141,7 @@ class HomePage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(
-                        height: 100,
-                      ), // Space for floating nav bar
+                      const SizedBox(height: 100), // Space for floating nav bar
                     ],
                   ),
                 ),

@@ -18,11 +18,19 @@
 
   @override
   Widget build (BuildContext context){
-    Color pillColor = status == 'Paid' ? Colors.green : Colors.red;
+    final colors = Theme.of(context).colorScheme;
+    Color pillColor = status == 'Paid' ? Colors.green : colors.error;
       return Card(
 
+      color: colors.surface,
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Colors.black,
+          width: 0.2,
+        )
+        ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -47,6 +55,7 @@
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
+                          color: colors.primary
                         ),
                       ),
                       SizedBox(height: 4),

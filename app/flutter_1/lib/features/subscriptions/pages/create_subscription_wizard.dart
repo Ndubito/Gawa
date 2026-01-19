@@ -75,11 +75,16 @@ class _CreateSubscriptionWizardState extends State<CreateSubscriptionWizard> {
           ),
         ),
         const SizedBox(height: 20),
-        const Text("Suggested",
-            style: TextStyle(fontSize: 14, color: Colors.grey)),
+        const Text(
+          "Suggested",
+          style: TextStyle(fontSize: 14, color: Colors.grey),
+        ),
         const SizedBox(height: 12),
         ListTile(
-          leading: CircleAvatar(backgroundColor: Colors.red[100], child: const Text("N")),
+          leading: CircleAvatar(
+            backgroundColor: Colors.red[100],
+            child: const Text("N"),
+          ),
           title: const Text("Netflix"),
           subtitle: const Text("Entertainment"),
           onTap: () {
@@ -87,7 +92,10 @@ class _CreateSubscriptionWizardState extends State<CreateSubscriptionWizard> {
           },
         ),
         ListTile(
-          leading: CircleAvatar(backgroundColor: Colors.green[100], child: const Text("S")),
+          leading: CircleAvatar(
+            backgroundColor: Colors.green[100],
+            child: const Text("S"),
+          ),
           title: const Text("Spotify"),
           subtitle: const Text("Music"),
           onTap: () {
@@ -154,7 +162,7 @@ class _CreateSubscriptionWizardState extends State<CreateSubscriptionWizard> {
     );
   }
 
-    Widget _buildGracePeriodStep() {
+  Widget _buildGracePeriodStep() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -163,24 +171,27 @@ class _CreateSubscriptionWizardState extends State<CreateSubscriptionWizard> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: Text("Time before retrying if payment fails.")
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: Text("Time before retrying if payment fails."),
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
-          value: _gracePeriod,
-          items: ['None', '1 Day', '3 Days', '7 Days']
-              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-              .toList(),
+          initialValue: _gracePeriod,
+          items: [
+            'None',
+            '1 Day',
+            '3 Days',
+            '7 Days',
+          ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
           onChanged: (val) {
-             setState(() {
-               _gracePeriod = val!;
-             });
+            setState(() {
+              _gracePeriod = val!;
+            });
           },
           decoration: InputDecoration(
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              filled: true,
-              fillColor: Colors.white,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            filled: true,
+            fillColor: Colors.white,
           ),
         ),
       ],
@@ -235,32 +246,7 @@ class _CreateSubscriptionWizardState extends State<CreateSubscriptionWizard> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF1a1a2e),
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: _prevStep,
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Row(
-             mainAxisAlignment: MainAxisAlignment.center,
-             children: List.generate(_totalSteps, (index) {
-               return Container(
-                 width: 8,
-                 height: 8,
-                 margin: const EdgeInsets.symmetric(horizontal: 4),
-                 decoration: BoxDecoration(
-                   shape: BoxShape.circle,
-                   color: index <= _currentStep ? const Color(0xFF6c63ff) : Colors.grey[300],
-                 ),
-               );
-             }),
-        ),
-        centerTitle: true,
-        actions: [
-            const SizedBox(width: 48), // Balance centering
-        ],
-      ),
+
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
@@ -269,6 +255,24 @@ class _CreateSubscriptionWizardState extends State<CreateSubscriptionWizard> {
               color: Color(0xFFe8e9ed),
               child: Column(
                 children: [
+                  SizedBox(height: 20,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(_totalSteps, (index) {
+                      return Container(
+                        width: 8,
+                        height: 8,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: index <= _currentStep
+                              ? const Color(0xFF6c63ff)
+                              : Colors.grey[500],
+                        ),
+                      );
+                    }),
+                  ),
+                  
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
@@ -277,23 +281,72 @@ class _CreateSubscriptionWizardState extends State<CreateSubscriptionWizard> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(24.0),
-                     child: SizedBox(
-                         width: double.infinity,
-                         height: 50,
-                         child: ElevatedButton(
-                             onPressed: _nextStep,
-                             style: ElevatedButton.styleFrom(
-                                 backgroundColor: const Color(0xFF6c63ff),
-                                 shape: RoundedRectangleBorder(
-                                     borderRadius: BorderRadius.circular(12)
-                                 )
-                             ),
-                             child: Text(
-                                 _currentStep == _totalSteps - 1 ? "Confirm" : "Next",
-                                 style: const TextStyle(color: Colors.white, fontSize: 16),
-                             ),
-                         ),
-                     ),
+
+                    child: Row(
+                      children: [
+                        _currentStep > 0
+                            ? Expanded(
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 50,
+                                      child: ElevatedButton(
+                                        onPressed: _prevStep,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(
+                                            0xFF6c63ff,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          "Back",
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : SizedBox(height: 0),
+                        SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 50,
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _nextStep,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF6c63ff),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    _currentStep == _totalSteps - 1
+                                        ? "Confirm"
+                                        : "Next",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

@@ -12,6 +12,7 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Positioned(
       left: 0,
       right: 0,
@@ -22,8 +23,9 @@ class BottomNavigation extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 20),
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: colors.onSurface, width: 0.15),
+            color: colors.surface,
+            borderRadius: BorderRadius.circular(100),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.15),
@@ -38,46 +40,45 @@ class BottomNavigation extends StatelessWidget {
               IconButton(
                 onPressed: () => onItemSelected(0),
                 icon: Icon(
+                  weight: 1,
+
                   Icons.home_outlined,
-                  color: selectedIndex == 0
-                      ? const Color(0xFF4a9fd8)
-                      : Colors.grey,
+                  color: selectedIndex == 0 ? colors.primary : colors.onSurface,
                 ),
               ),
               IconButton(
                 onPressed: () => onItemSelected(1),
                 icon: Icon(
                   Icons.people_outline,
-                  color: selectedIndex == 1
-                      ? const Color(0xFF4a9fd8)
-                      : Colors.grey,
+                  weight: 1,
+                  color: selectedIndex == 1 ? colors.primary : colors.onSurface,
                 ),
               ),
               IconButton(
                 onPressed: () => onItemSelected(2),
                 icon: Icon(
+                  weight: 1,
+
                   Icons.shopping_bag_outlined,
-                  color: selectedIndex == 2
-                      ? const Color(0xFF4a9fd8)
-                      : Colors.grey,
+                  color: selectedIndex == 2 ? colors.primary : colors.onSurface,
                 ),
               ),
               IconButton(
                 onPressed: () => onItemSelected(3),
                 icon: Icon(
+                  weight: 1,
+
                   Icons.history, // Activity
-                  color: selectedIndex == 3
-                      ? const Color(0xFF4a9fd8)
-                      : Colors.grey,
+                  color: selectedIndex == 3 ? colors.primary : colors.onSurface,
                 ),
               ),
               IconButton(
                 onPressed: () => onItemSelected(4),
                 icon: Icon(
+                  weight: 1,
+
                   Icons.person_outline,
-                  color: selectedIndex == 4
-                      ? const Color(0xFF4a9fd8)
-                      : Colors.grey,
+                  color: selectedIndex == 4 ? colors.primary : colors.onSurface,
                 ),
               ),
             ],

@@ -11,10 +11,11 @@ class HeadingText extends StatelessWidget{
   @override
   Widget build (BuildContext context)
  {
+    final colors = Theme.of(context).colorScheme;
     return Text(
       text,
       style: TextStyle(
-        color: Color(0xFF2d3561),
+        color: colors.onSurface,
         fontSize: 20,
         fontWeight: FontWeight.bold,
       ),

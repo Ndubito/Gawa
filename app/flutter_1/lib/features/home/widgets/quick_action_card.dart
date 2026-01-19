@@ -15,14 +15,16 @@ class QuickActionCard extends StatelessWidget{
 
     @override
     Widget build(BuildContext context){
+        final colors = Theme.of(context).colorScheme;
+
     return SizedBox(
       width: 105,
       height: 105,
       child: Material(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
         elevation: 2,
-        shadowColor: Colors.black.withValues(alpha: 0.1),
+        shadowColor: Colors.black.withValues(alpha: 0.3),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
@@ -36,7 +38,7 @@ class QuickActionCard extends StatelessWidget{
                 Container(
                   padding: const EdgeInsets.all(8),
 
-                  child: Icon(icon, color: const Color(0xFF4a9fd8), size: 24),
+                  child: Icon(icon, color:  colors.primary, size: 24),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -44,10 +46,10 @@ class QuickActionCard extends StatelessWidget{
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF2d3561),
+                    color: colors.onSurface,
                     height: 1.2,
                   ),
                 ),
