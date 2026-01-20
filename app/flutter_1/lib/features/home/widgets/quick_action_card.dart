@@ -15,15 +15,16 @@ class QuickActionCard extends StatelessWidget{
 
     @override
     Widget build(BuildContext context){
-        final colors = Theme.of(context).colorScheme;
 
+      final colors = Theme.of(context).colorScheme;
+    
     return SizedBox(
       width: 105,
       height: 105,
       child: Material(
         color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        elevation: 2,
+        elevation: 2, 
         shadowColor: Colors.black.withValues(alpha: 0.3),
         clipBehavior: Clip.antiAlias,
         child: InkWell(

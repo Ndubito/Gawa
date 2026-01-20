@@ -81,7 +81,7 @@ class HomePage extends StatelessWidget {
                         status: 'Paid',
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
                       // Action Required Section
                       const HeadingText(text: 'Action Required'),
@@ -93,7 +93,7 @@ class HomePage extends StatelessWidget {
                         status: 'Failed',
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
                       // Quick Actions Section
                       const HeadingText(text: 'Quick Actions'),

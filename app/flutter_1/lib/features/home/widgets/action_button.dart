@@ -17,7 +17,6 @@ class ActionButton extends StatelessWidget{
       final colors = Theme.of(context).colorScheme;
 
     return Align(
-      alignment: Alignment.centerRight,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
