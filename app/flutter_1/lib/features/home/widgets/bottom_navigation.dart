@@ -23,8 +23,7 @@ class BottomNavigation extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 20),
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           decoration: BoxDecoration(
-            border: Border.all(color: colors.onSurface, width: 0.15),
-            color: colors.surface,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(100),
             boxShadow: [
               BoxShadow(

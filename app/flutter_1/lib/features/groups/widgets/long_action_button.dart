@@ -15,6 +15,9 @@ class LongActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final colors = Theme.of(context).colorScheme;
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
@@ -22,8 +25,8 @@ class LongActionButton extends StatelessWidget {
         icon: icon,
         label: buttonLabel,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF6c63ff),
-          foregroundColor: Colors.white,
+          backgroundColor: colors.primary,
+          foregroundColor: colors.onPrimary,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),

@@ -51,6 +51,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final filteredSubs = _selectedFilter == 'All'
         ? _subscriptions
         : _subscriptions
@@ -58,7 +59,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
             .toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1a1a2e),
+      backgroundColor: colors.surface,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
@@ -67,7 +68,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(20),
-                  color: const Color(0xFFe8e9ed),
+                  color: colors.surface,
                   constraints: const BoxConstraints(minHeight: 800), // Fill screen roughly
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,9 +115,9 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                                     });
                                   }
                                 },
-                                selectedColor: const Color(0xFF6c63ff),
+                                selectedColor: colors.primary,
                                 labelStyle: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.black,
+                                  color: isSelected ? colors.onPrimary : Colors.black,
                                 ),
                                 backgroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(

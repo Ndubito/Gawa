@@ -22,7 +22,7 @@ class QuickActionCard extends StatelessWidget{
       width: 105,
       height: 105,
       child: Material(
-        color: colors.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         elevation: 2, 
         shadowColor: Colors.black.withValues(alpha: 0.3),

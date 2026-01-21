@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
           seedColor: const Color.fromRGBO(0, 81, 255, 1),
           brightness: Brightness.light,
           primary: const Color.fromRGBO(0, 81, 255, 1),
+          surface: Color(0xFFf2f4f5)
           
           ),
       ),

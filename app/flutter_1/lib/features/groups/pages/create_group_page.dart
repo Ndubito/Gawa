@@ -17,13 +17,14 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: const Color(0xFF1a1a2e),
+      backgroundColor: colors.surface,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
           child: Container(
-            color: const Color(0xFFe8e9ed),
+            color: colors.surface,
             child: Column(
               children: [
                 CreateGroupHeader(),
@@ -34,12 +35,12 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Group Name
-                        const Text(
+                         Text(
                           'Group Name',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2d3561),
+                            color: colors.onSurface,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -58,12 +59,12 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                         const SizedBox(height: 24),
 
                         // Amount
-                        const Text(
+                         Text(
                           'Default Amount (ksh)',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2d3561),
+                            color: colors.onSurface,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -83,12 +84,12 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                         const SizedBox(height: 24),
 
                         // Split Type
-                        const Text(
+                         Text(
                           'Split Type',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2d3561),
+                            color: colors.onSurface,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -119,12 +120,12 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                         const SizedBox(height: 24),
 
                         // Invite Members (Placeholder)
-                        const Text(
+                         Text(
                           'Invite Members',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2d3561),
+                            color: colors.onSurface,
                           ),
                         ),
                         const SizedBox(height: 8),

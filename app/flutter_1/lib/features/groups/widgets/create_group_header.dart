@@ -7,22 +7,23 @@ class CreateGroupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
+      // color: Colors.white,
       padding: const EdgeInsets.all(20),
-      color: const Color(0xFF2d3561),
       child: Row(
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon:  Icon(Icons.arrow_back, color: colors.onSurface),
           ),
           const SizedBox(width: 8),
-          const Expanded(
+           Expanded(
             child: Text(
               "Create a Group",
               style: TextStyle( 
-                color: Colors.white,
+                color: colors.onSurface,
                 fontSize: 24,
               ),
             ),

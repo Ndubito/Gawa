@@ -7,19 +7,21 @@ class TotalAmountCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+        final colors = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF6c63ff),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
-        children: const [
+        children:  [
           Text(
             'Total Amount',
             style: TextStyle(
-              color: Colors.white70,
+              color: colors.primary,
               fontSize: 14,
             ),
           ),
@@ -27,7 +29,7 @@ class TotalAmountCard extends StatelessWidget {
           Text(
             '1,500 ksh',
             style: TextStyle(
-              color: Colors.white,
+              color: colors.onSurface,
               fontSize: 36,
               fontWeight: FontWeight.bold,
             ),
@@ -36,7 +38,7 @@ class TotalAmountCard extends StatelessWidget {
           Text(
             'Next charge: Jan 15',
             style: TextStyle(
-              color: Colors.white70,
+              color: colors.primary,
               fontSize: 13,
             ),
           ),

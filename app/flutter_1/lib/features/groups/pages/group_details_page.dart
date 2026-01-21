@@ -19,14 +19,15 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: const Color(0xFF1a1a2e),
+      backgroundColor: colors.surface,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
           child: SafeArea(
             child: Container(
-              color: const Color(0xFFe8e9ed),
+              color: colors.surface,
               child: Column(
                 children: [
                   // Header

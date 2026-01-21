@@ -26,6 +26,9 @@ class GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final colors = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -50,19 +53,19 @@ class GroupCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     groupName,
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1a1a2e),
+                      color: Colors.black,
                     ),
                   ),
                 ),
                 Text(
                   totalAmount,
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF6c63ff),
+                    color: colors.primary,
                   ),
                 ),
               ],
@@ -102,11 +105,11 @@ class GroupCard extends StatelessWidget {
                                 left: i * 20.0,
                                 child: CircleAvatar(
                                   radius: 16,
-                                  backgroundColor: Color(0xFF6c63ff).withValues(alpha: 0.8 - (i * 0.1)),
+                                  backgroundColor: colors.primary.withValues(alpha: 0.8 - (i * 0.1)),
                                   child: Text(
                                     memberAvatars[i],
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style:  TextStyle(
+                                      color: colors.onPrimary,
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                     ),

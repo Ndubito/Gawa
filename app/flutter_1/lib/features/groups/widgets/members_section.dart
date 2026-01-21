@@ -13,6 +13,7 @@ class MembersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onToggle,
       child: Container(
@@ -26,17 +27,17 @@ class MembersSection extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                 Text(
                   'Members (4)',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1a1a2e),
+                    color: colors.onSurface,
                   ),
                 ),
                 Icon(
                   membersExpanded ? Icons.expand_less : Icons.expand_more,
-                  color: Colors.grey,
+                  color: colors.onSurface,
                 ),
               ],
             ),

@@ -17,15 +17,16 @@ class MemberItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Row(
       children: [
         CircleAvatar(
           radius: 20,
-          backgroundColor: const Color(0xFF6c63ff).withOpacity(0.2),
+          backgroundColor: colors.primary.withValues(alpha: 0.2),
           child: Text(
             name[0],
-            style: const TextStyle(
-              color: Color(0xFF6c63ff),
+            style:  TextStyle(
+              color: colors.primary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -50,7 +51,7 @@ class MemberItem extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF6c63ff).withOpacity(0.1),
+                        color: colors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(

@@ -13,7 +13,7 @@ class GroupsPage extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1a1a2e),
+      backgroundColor: colors.surface,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
@@ -23,7 +23,7 @@ class GroupsPage extends StatelessWidget {
                 // Main content
                 Container(
                   padding: const EdgeInsets.all(20),
-                  color: const Color(0xFFe8e9ed),
+                  color:   colors.surface,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
