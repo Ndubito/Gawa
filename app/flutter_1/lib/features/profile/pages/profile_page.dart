@@ -8,25 +8,22 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1a1a2e),
+      backgroundColor: colors.surface,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
           child: SingleChildScrollView(
             child: Column(
               children: [
-                
                 // Header
-               
                 Container(
                   padding: const EdgeInsets.all(20),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFe8e9ed),
-                  
-                  ),
+                  decoration:  BoxDecoration(color: colors.surface),
                   constraints: const BoxConstraints(minHeight: 500),
-                  child: Column(  
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(
@@ -44,13 +41,13 @@ class ProfilePage extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: const Center(
+                          child:  Center(
                             child: Text(
                               "N",
                               style: TextStyle(
                                 fontSize: 40,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF2d3561),
+                                color: colors.onSurface,
                               ),
                             ),
                           ),
@@ -58,12 +55,12 @@ class ProfilePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Center(
-                        child: const Text(
+                        child:  Text(
                           "Nathan",
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2d3561),
+                            color: colors.onSurface,
                           ),
                         ),
                       ),
@@ -89,9 +86,9 @@ class ProfilePage extends StatelessWidget {
                         ),
                       ),
 
-                      SizedBox(height: 20,),
+                      SizedBox(height: 20),
 
-                       // Settings List
+                      // Settings List
                       const HeadingText(text: "Account Settings"),
                       const SizedBox(height: 20),
 

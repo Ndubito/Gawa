@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_1/features/subscriptions/widgets/subscription_detail_header.dart';
 
 class SubscriptionDetailsPage extends StatelessWidget {
   const SubscriptionDetailsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: const Color(0xFF1a1a2e),
-      appBar: AppBar(
-        title: const Text("Detail", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      backgroundColor: Colors.white,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
@@ -24,28 +17,29 @@ class SubscriptionDetailsPage extends StatelessWidget {
               children: [
             // Header
             const SizedBox(height: 20),
+            SubscriptionDetailHeader(),
             Container(
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.red[100],
+                color: colors.primary,
                 shape: BoxShape.circle,
               ),
-              child: const Center(
+              child:  Center(
                   child: Text("N",
                       style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red))),
+                          color: colors.onPrimary))),
             ),
             const SizedBox(height: 16),
-            const Text(
+             Text(
               "Netflix Standard",
               style: TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                  fontSize: 24, fontWeight: FontWeight.bold, color: colors.onSurface),
             ),
             const SizedBox(height: 8),
-            const Text(
+            const Text( 
               "1,200 ksh / month",
               style: TextStyle(fontSize: 18, color: Colors.grey),
             ),
@@ -63,8 +57,8 @@ class SubscriptionDetailsPage extends StatelessWidget {
             // Content
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Color(0xFFe8e9ed),
+              decoration:  BoxDecoration(
+                color: colors.surface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
               ),
               constraints: const BoxConstraints(minHeight: 500),
@@ -80,8 +74,8 @@ class SubscriptionDetailsPage extends StatelessWidget {
                        borderRadius: BorderRadius.circular(12),
                      ),
                      child: Row(
-                       children: const [
-                         Icon(Icons.credit_card, color: Colors.blue),
+                       children:  [
+                         Icon(Icons.credit_card, color: colors.primary),
                          SizedBox(width: 12),
                          Text("Visa ending in 4242"),
                          Spacer(),

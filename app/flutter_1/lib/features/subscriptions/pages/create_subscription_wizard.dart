@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/add_subscription_header.dart';
 
 class CreateSubscriptionWizard extends StatefulWidget {
   const CreateSubscriptionWizard({super.key});
@@ -244,17 +245,20 @@ class _CreateSubscriptionWizardState extends State<CreateSubscriptionWizard> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: const Color(0xFF1a1a2e),
+      backgroundColor: colors.surface,
 
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
           child: SafeArea(
             child: Container(
-              color: Color(0xFFe8e9ed),
+              color: colors.surface,
               child: Column(
                 children: [
+                  SizedBox(height: 20,),
+                  AddSubscriptionHeader(),
                   SizedBox(height: 20,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -266,7 +270,7 @@ class _CreateSubscriptionWizardState extends State<CreateSubscriptionWizard> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: index <= _currentStep
-                              ? const Color(0xFF6c63ff)
+                              ? colors.primary
                               : Colors.grey[500],
                         ),
                       );

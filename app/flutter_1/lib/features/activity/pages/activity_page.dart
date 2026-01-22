@@ -7,8 +7,9 @@ class ActivityPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: const Color(0xFF1a1a2e),
+      backgroundColor: colors.surface,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
@@ -18,8 +19,8 @@ class ActivityPage extends StatelessWidget {
                 Container(
                    padding: const EdgeInsets.all(20),
                    constraints: const BoxConstraints(minHeight: 800),
-                   decoration: const BoxDecoration(
-                     color: Color(0xFFe8e9ed),
+                   decoration:  BoxDecoration(
+                     color: colors.surface,
                    ),
                    child: Column(
                      crossAxisAlignment: CrossAxisAlignment.start,
