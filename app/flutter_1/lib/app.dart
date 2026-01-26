@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_1/features/auth/login_page.dart';
+import 'package:flutter_1/features/navigation/main_scaffold.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
           
           ),
       ),
-      home: const LoginPage(),
+      home: const MainScaffold(),
     );
   }
 } 
