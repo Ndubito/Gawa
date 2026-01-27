@@ -18,7 +18,7 @@ WORKDIR /services/api/gawa
 COPY services/api/gawa/package*.json ./
 RUN npm install
 
-# Copy the rest of the source filesj
+# Copy the rest of the source files
 COPY services/api/gawa .
 
 # Build the NestJS application
