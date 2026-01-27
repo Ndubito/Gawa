@@ -11,6 +11,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     // ignore: unused_local_variable
     final colors = Theme.of(context).colorScheme;
 
@@ -51,7 +52,8 @@ class HomePage extends StatelessWidget {
                         ],
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                        },
                         icon: Icon(
                           Icons.notifications_outlined,
                           color: colors.onSurface,
