@@ -1,40 +1,69 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_1/features/auth/login_page.dart';
-import 'package:flutter_1/features/navigation/main_scaffold.dart';
+import 'package:flutter_1/features/auth/data/firebase_auth_repo.dart';
+import 'package:flutter_1/features/auth/presentation/components/loading.dart';
+import 'package:flutter_1/features/auth/presentation/cubits/auth_cubit.dart';
+import 'package:flutter_1/features/auth/presentation/cubits/auth_state.dart';
+import 'package:flutter_1/features/auth/presentation/pages/auth_page.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+import 'package:flutter_1/features/home/home_page.dart';
+import 'package:flutter_1/themes/dark_mode.dart';
+import 'package:flutter_1/themes/light_mode.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class App extends StatelessWidget {
+  App({super.key});
+
+  //auth repo
+  final firebaseAuthRepo = FirebaseAuthRepo();
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Gawa',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromRGBO(0, 81, 255, 1),
-          brightness: Brightness.light,
-          primary: const Color.fromRGBO(0, 81, 255, 1),
-          surface: Color(0xFFf2f4f5)
-          
-          ),
+    return MultiBlocProvider(
+      //provide cubits to app
+      providers: [
+        //auth cubit
+        BlocProvider<AuthCubit>(
+          create: (context) =>
+              AuthCubit(authRepo: firebaseAuthRepo)..checkAuth(),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Gawa',
+        theme: lightMode,
+        darkTheme: darkMode,
+        /*
+
+          BLOC CONSUMER - Auth
+
+        */
+        home: BlocConsumer<AuthCubit, AuthState>(
+          builder: (context, state) {
+            //unauthenticated -> auth page (Register/Login)
+            if (state is Unauthenticated) {
+              return const AuthPage();
+            }
+
+            //authenticated - Home Page
+            if (state is Authenticated) {
+              return const HomePage();
+            }
+            // loading...
+            else {
+              return const LoadingScreen();
+            }
+          },
+          //listen for state changes
+          listener: (context, state) {
+            if (state is AuthError) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+        ),
       ),
-      home: const MainScaffold(),
     );
   }
-} 
+}

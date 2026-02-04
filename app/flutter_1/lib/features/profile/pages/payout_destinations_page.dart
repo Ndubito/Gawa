@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_1/features/home/widgets/header.dart';
-import '../../home/widgets/heading_text.dart';
 
 class PayoutDestinationsPage extends StatelessWidget {
   const PayoutDestinationsPage({super.key});

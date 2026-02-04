@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_1/features/auth/presentation/cubits/auth_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'widgets/quick_action_card.dart';
 import 'widgets/charge_card.dart';
 import 'widgets/heading_text.dart';
@@ -14,6 +16,7 @@ class HomePage extends StatelessWidget {
 
     // ignore: unused_local_variable
     final colors = Theme.of(context).colorScheme;
+    final authCubit = context.read<AuthCubit>();
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -29,7 +32,7 @@ class HomePage extends StatelessWidget {
                   padding: EdgeInsets.only(left: 20, right: 20, top: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                    children: [ 
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -56,6 +59,16 @@ class HomePage extends StatelessWidget {
                         },
                         icon: Icon(
                           Icons.notifications_outlined,
+                          color: colors.onSurface,
+                          size: 28,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          authCubit.logout();
+                        },
+                        icon: Icon(
+                          Icons.logout,
                           color: colors.onSurface,
                           size: 28,
                         ),

@@ -9,7 +9,7 @@ class ApiClient {
         baseUrl: 'http://localhost:8000',
         connectTimeout: const Duration(seconds: 5),
         receiveTimeout: const Duration(seconds: 5),
-      )
+      ) 
     );
   }
 }

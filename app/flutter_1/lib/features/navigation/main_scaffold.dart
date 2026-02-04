@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_1/features/activity/pages/activity_page.dart';
-import 'package:flutter_1/features/auth/login_page.dart';
-import 'package:flutter_1/features/auth/register_page.dart';
-import 'package:flutter_1/features/groups/pages/group_details_page.dart';
 import 'package:flutter_1/features/groups/pages/groups_page.dart';
 import 'package:flutter_1/features/home/home_page.dart';
 import 'package:flutter_1/features/profile/pages/profile_page.dart';
