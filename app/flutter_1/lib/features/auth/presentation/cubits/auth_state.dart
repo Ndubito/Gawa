@@ -21,10 +21,17 @@ class Authenticated extends AuthState{
 //unauthenticated
 class Unauthenticated extends AuthState{}
 
+//OTP code sent for mobile login
+class CodeSent extends AuthState{
+  final String verificationId;
+  CodeSent(this.verificationId);
+}
+
 //errors
 class AuthError extends AuthState{
   final String message;
 
   AuthError(this.message);
 }
+
 

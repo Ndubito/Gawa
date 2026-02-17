@@ -25,7 +25,7 @@ class LongActionButton extends StatelessWidget {
         icon: icon,
         label: buttonLabel,
         style: ElevatedButton.styleFrom(
-          backgroundColor: colors.primary,
+          backgroundColor: colors.inversePrimary,
           foregroundColor: colors.onPrimary,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(

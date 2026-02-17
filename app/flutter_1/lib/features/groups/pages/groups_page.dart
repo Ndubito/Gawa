@@ -11,7 +11,6 @@ class GroupsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-
     return Scaffold(
       backgroundColor: colors.surface,
       body: Center(
@@ -23,7 +22,6 @@ class GroupsPage extends StatelessWidget {
                 // Main content
                 Container(
                   padding: const EdgeInsets.all(20),
-                  color:   colors.surface,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

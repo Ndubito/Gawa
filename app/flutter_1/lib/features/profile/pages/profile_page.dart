@@ -31,9 +31,9 @@ class ProfilePage extends StatelessWidget {
                           width: 100,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: colors.tertiary,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 4),
+                            border: Border.all(color: colors.tertiary, width: 4),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(alpha: 0.2),
@@ -47,7 +47,7 @@ class ProfilePage extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 40,
                                 fontWeight: FontWeight.bold,
-                                color: colors.onSurface,
+                                color: colors.inversePrimary,
                               ),
                             ),
                           ),
@@ -60,7 +60,7 @@ class ProfilePage extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: colors.onSurface,
+                            color: colors.inversePrimary,
                           ),
                         ),
                       ),
@@ -170,14 +170,15 @@ class ProfilePage extends StatelessWidget {
     String title,
     Widget? page,
   ) {
+    final colors = Theme.of(context).colorScheme;
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.tertiary,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: const Color(0xFF2d3561)),
+        child: Icon(icon, color: colors.inversePrimary),
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),

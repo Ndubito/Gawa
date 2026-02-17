@@ -103,4 +103,45 @@ class AuthCubit extends Cubit<AuthState> {
       emit(Unauthenticated());
     }
   }
+
+  /*
+    MOBILE LOGIN
+  */
+
+  // Send OTP
+  Future<void> sendOtp(String phone) async {
+    emit(AuthLoading());
+    try {
+      await authRepo.verifyPhoneNumber(
+        phoneNumber: phone,
+        codeSent: (verificationId) {
+          emit(CodeSent(verificationId));
+        },
+        verificationFailed: (error) {
+          emit(AuthError(error));
+        },
+      );
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
+
+  //verify OTP
+  Future<void> verifyOtp(String verificationId, String smsCode) async {
+    try {
+      emit(AuthLoading());
+
+      final user = await authRepo.verifyOtp(verificationId, smsCode);
+
+      if (user != null) {
+        _currentUser = user;
+        emit(Authenticated(user));
+      } else {
+        emit(AuthError("OTP verification failed"));
+        emit(Unauthenticated());
+      }
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
 }

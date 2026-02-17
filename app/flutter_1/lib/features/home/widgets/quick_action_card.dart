@@ -22,10 +22,10 @@ class QuickActionCard extends StatelessWidget{
       width: 105,
       height: 105,
       child: Material(
-        color: Colors.white,
+        color: colors.tertiary,
         borderRadius: BorderRadius.circular(16),
         elevation: 2, 
-        shadowColor: Colors.black.withValues(alpha: 0.3),
+        shadowColor: colors.inversePrimary.withValues(alpha: 0.3),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,

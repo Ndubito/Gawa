@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_1/features/auth/domain/entities/app_user.dart';
 import 'package:flutter_1/features/auth/domain/repos/auth_repo.dart';
-
+import 'package:flutter_1/features/auth/presentation/cubits/auth_state.dart';
 
 /*
   FIREBASE IS OUR AUTHENTICATION BACKEND
@@ -13,7 +13,7 @@ class FirebaseAuthRepo extends AuthRepo {
 
   //DELETE ACCOUNT
   @override
-  Future<void> deleteAccount() async{
+  Future<void> deleteAccount() async {
     try {
       //get current user
       final user = firebaseAuth.currentUser;
@@ -30,16 +30,16 @@ class FirebaseAuthRepo extends AuthRepo {
       throw Exception('Failed to delete accont: $e');
     }
   }
-  
+
   //GET CURRENT USER
   @override
-  Future<AppUser?> getCurrentUser() async{
+  Future<AppUser?> getCurrentUser() async {
     try {
       //get current logged in user from firebase
       final user = firebaseAuth.currentUser;
 
       //no logged in user
-      if (user ==null) return null;
+      if (user == null) return null;
 
       return AppUser(uid: user.uid, email: user.email!);
     } catch (e) {
@@ -47,7 +47,7 @@ class FirebaseAuthRepo extends AuthRepo {
     }
   }
 
-  //LOGIN: Email and Password 
+  //LOGIN: Email and Password
   @override
   Future<AppUser?> loginWithEmailPassword(String email, String password) async {
     try {
@@ -60,32 +60,36 @@ class FirebaseAuthRepo extends AuthRepo {
 
       //return user
       return user;
-      
     } catch (e) {
       throw Exception('Login failed: $e');
     }
   }
-  
+
   // LOGOUT
   @override
   Future<void> logout() async {
     await firebaseAuth.signOut();
   }
+
   //REGISTER: Email and Password
   @override
-  Future<AppUser?> registerWithEmailPassword(String name, String email, String password) async{
+  Future<AppUser?> registerWithEmailPassword(
+    String name,
+    String email,
+    String password,
+  ) async {
     try {
       //attempt sign-up
-      UserCredential userCredential = await firebaseAuth.
-      createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential = await firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
 
       //create user
       AppUser user = AppUser(uid: userCredential.user!.uid, email: email);
 
       //return user
       return user;
-    
-    //find any errors
+
+      //find any errors
     } catch (e) {
       throw Exception('Registration failed: $e');
     }
@@ -93,12 +97,68 @@ class FirebaseAuthRepo extends AuthRepo {
 
   // RESET PASSWORD
   @override
-  Future<String> sendPasswordResetEmail(String email) async{
+  Future<String> sendPasswordResetEmail(String email) async {
     try {
       await firebaseAuth.sendPasswordResetEmail(email: email);
       return "Password reset email sent! Check your inbox.";
     } catch (e) {
-      return 'An error has occured: $e';  
+      return 'An error has occured: $e';
+    }
+  }
+
+
+  //verify user's phone number
+  @override
+  Future<void> verifyPhoneNumber({
+    required String phoneNumber,
+    required Function(String verificationId) codeSent,
+    required Function(String error) verificationFailed,
+  }) async {
+    await firebaseAuth.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      timeout: const Duration(seconds: 60),
+      //handle verification success
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await firebaseAuth.signInWithCredential(credential);
+      },
+      //handle errors
+      verificationFailed: (FirebaseAuthException e) {
+        verificationFailed(e.message ?? 'Verification failed');
+      },
+      //what to do when SMS code is sent to user
+      codeSent: (String verificationId, int? resendToken) {
+        codeSent(verificationId);
+      },
+      //what do do if inactive
+      codeAutoRetrievalTimeout: (_) {},
+    );
+  }
+
+  //LOGIN with phone number using OTP
+  @override
+  Future<AppUser?> verifyOtp(String verificationId, String smsCode) async {
+    try {
+      //get credentials
+      final credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode,
+      );
+
+      //attempt sign in with credentials
+      final userCredential = await firebaseAuth.signInWithCredential(
+        credential,
+      );
+
+      final user = userCredential.user;
+
+      if (user == null) return null;
+
+      //create user
+      return AppUser(uid: user.uid, phone: user.phoneNumber);
+
+    //handle errors
+    } on Exception catch (e) {
+      throw Exception("Failed to log in: $e");
     }
   }
 }

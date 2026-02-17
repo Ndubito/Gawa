@@ -23,13 +23,13 @@ class BottomNavigation extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 20),
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colors.tertiary,
             borderRadius: BorderRadius.circular(100),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
+                color: colors.inversePrimary.withValues(alpha: 0.15),
+                blurRadius: 3,
+                offset: const Offset(0, 0),
               ),
             ],
           ),
@@ -42,7 +42,7 @@ class BottomNavigation extends StatelessWidget {
                   weight: 1,
 
                   Icons.home_outlined,
-                  color: selectedIndex == 0 ? colors.primary : colors.onSurface,
+                  color: selectedIndex == 0 ? colors.inversePrimary : colors.primary,
                 ),
               ),
               IconButton(
@@ -50,7 +50,7 @@ class BottomNavigation extends StatelessWidget {
                 icon: Icon(
                   Icons.people_outline,
                   weight: 1,
-                  color: selectedIndex == 1 ? colors.primary : colors.onSurface,
+                  color: selectedIndex == 1 ? colors.inversePrimary : colors.primary,
                 ),
               ),
               IconButton(
@@ -59,7 +59,7 @@ class BottomNavigation extends StatelessWidget {
                   weight: 1,
 
                   Icons.shopping_bag_outlined,
-                  color: selectedIndex == 2 ? colors.primary : colors.onSurface,
+                  color: selectedIndex == 2 ? colors.inversePrimary : colors.primary,
                 ),
               ),
               IconButton(
@@ -68,7 +68,7 @@ class BottomNavigation extends StatelessWidget {
                   weight: 1,
 
                   Icons.history, // Activity
-                  color: selectedIndex == 3 ? colors.primary : colors.onSurface,
+                  color: selectedIndex == 3 ? colors.inversePrimary : colors.primary,
                 ),
               ),
               IconButton(
@@ -77,7 +77,7 @@ class BottomNavigation extends StatelessWidget {
                   weight: 1,
 
                   Icons.person_outline,
-                  color: selectedIndex == 4 ? colors.primary : colors.onSurface,
+                  color: selectedIndex == 4 ? colors.inversePrimary : colors.primary,
                 ),
               ),
             ],

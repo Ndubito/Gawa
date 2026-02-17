@@ -20,7 +20,7 @@ class ActionButton extends StatelessWidget{
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: colors.primary,
+          backgroundColor: colors.inversePrimary,
           foregroundColor: colors.onPrimary,
           padding: const EdgeInsets.symmetric(
             horizontal: 24,

@@ -17,32 +17,65 @@ class ActivityPage extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                   padding: const EdgeInsets.all(20),
-                   constraints: const BoxConstraints(minHeight: 800),
-                   decoration:  BoxDecoration(
-                     color: colors.surface,
-                   ),
-                   child: Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     children: [
-                        HeadingText(text: "Activity"),
-                        const SizedBox(height: 20),
+                  padding: const EdgeInsets.all(20),
+                  constraints: const BoxConstraints(minHeight: 800),
+                  decoration: BoxDecoration(color: colors.surface),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      HeadingText(text: "Activity"),
+                      const SizedBox(height: 20),
 
-                        _buildDateHeader("Today"),
-                        _buildTransactionItem(context, "Netflix", "Paid", "- 1,200 ksh", Icons.check_circle, Colors.green),
-                        _buildTransactionItem(context, "Gym Membership", "Failed", "- 3,200 ksh", Icons.error, Colors.red),
-                        
-                        _buildDateHeader("Yesterday"),
-                         _buildTransactionItem(context, "Group Payout", "Received", "+ 15,000 ksh", Icons.arrow_downward, Colors.blue),
+                      _buildDateHeader("Today"),
+                      _buildTransactionItem(
+                        context,
+                        "Netflix",
+                        "Paid",
+                        "- 1,200 ksh",
+                        Icons.check_circle,
+                        Colors.green,
+                      ),
+                      _buildTransactionItem(
+                        context,
+                        "Gym Membership",
+                        "Failed",
+                        "- 3,200 ksh",
+                        Icons.error,
+                        Colors.red,
+                      ),
 
-                        _buildDateHeader("Jan 10"),
-                        _buildTransactionItem(context, "Spotify", "Paid", "- 300 ksh", Icons.check_circle, Colors.green),
-                         _buildTransactionItem(context, "ICloud", "Paid", "- 250 ksh", Icons.check_circle, Colors.green),
+                      _buildDateHeader("Yesterday"),
+                      _buildTransactionItem(
+                        context,
+                        "Group Payout",
+                        "Received",
+                        "+ 15,000 ksh",
+                        Icons.arrow_downward,
+                        Colors.blue,
+                      ),
 
-                         const SizedBox(height: 100),
-                     ],
-                   ),
-                )
+                      _buildDateHeader("Jan 10"),
+                      _buildTransactionItem(
+                        context,
+                        "Spotify",
+                        "Paid",
+                        "- 300 ksh",
+                        Icons.check_circle,
+                        Colors.green,
+                      ),
+                      _buildTransactionItem(
+                        context,
+                        "ICloud",
+                        "Paid",
+                        "- 250 ksh",
+                        Icons.check_circle,
+                        Colors.green,
+                      ),
+
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -65,24 +98,31 @@ class ActivityPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTransactionItem(BuildContext context, String title, String subtitle, String amount, IconData icon, Color iconColor) {
+  Widget _buildTransactionItem(
+    BuildContext context,
+    String title,
+    String subtitle,
+    String amount,
+    IconData icon,
+    Color iconColor,
+  ) {
+    final colors = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () {
-         Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  const TransactionDetailsPage(),
-            ),
-          );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const TransactionDetailsPage(),
+          ),
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.tertiary,
           borderRadius: BorderRadius.circular(16),
-           boxShadow: [
+          boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
@@ -105,17 +145,32 @@ class ActivityPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF2d3561))),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: colors.inversePrimary,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
                 ],
               ),
             ),
-            Text(amount, style: TextStyle(
-              fontWeight: FontWeight.bold, 
-              fontSize: 16,
-              color: amount.startsWith('+') ? Colors.green : const Color(0xFF2d3561),
-              )),
+            Text(
+              amount,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: amount.startsWith('+')
+                    ? Colors.green
+                    : colors.inversePrimary,
+              ),
+            ),
           ],
         ),
       ),

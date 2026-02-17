@@ -33,12 +33,14 @@ class SubscriptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.tertiary,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -58,19 +60,16 @@ class SubscriptionCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF2d3561),
+                        color: colors.inversePrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '$amount • $frequency',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
+                      style: TextStyle(fontSize: 14, color: colors.primary),
                     ),
                   ],
                 ),
@@ -95,18 +94,18 @@ class SubscriptionCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Container(height: 1, color: Colors.grey[200]),
+            Container(height: 1, color: colors.secondary),
             const SizedBox(height: 12),
             Row(
               children: [
-                const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                Icon(Icons.calendar_today, size: 16, color: colors.primary),
                 const SizedBox(width: 8),
                 Text(
                   'Next charge: $nextDate',
-                  style: const TextStyle(color: Colors.grey, fontSize: 13),
+                  style: TextStyle(color: colors.primary, fontSize: 13),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),

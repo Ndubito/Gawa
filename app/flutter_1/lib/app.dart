@@ -6,6 +6,7 @@ import 'package:flutter_1/features/auth/presentation/cubits/auth_state.dart';
 import 'package:flutter_1/features/auth/presentation/pages/auth_page.dart';
 
 import 'package:flutter_1/features/home/home_page.dart';
+import 'package:flutter_1/features/navigation/main_scaffold.dart';
 import 'package:flutter_1/themes/dark_mode.dart';
 import 'package:flutter_1/themes/light_mode.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,7 +48,7 @@ class App extends StatelessWidget {
 
             //authenticated - Home Page
             if (state is Authenticated) {
-              return const HomePage();
+              return const MainScaffold();
             }
             // loading...
             else {

@@ -21,12 +21,8 @@ class ChargeCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     Color pillColor = status == 'Paid' ? Colors.green : colors.error;
     return Card(
-      color: Colors.white,
-      elevation: 0,
-      // shape: RoundedRectangleBorder(
-      //   borderRadius: BorderRadius.circular(16),
-      //   side: BorderSide(color: Colors.black, width: 0.2),
-      // ),
+      color: colors.tertiary,
+      elevation: 0.85, 
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

@@ -15,7 +15,7 @@ class HeadingText extends StatelessWidget{
     return Text(
       text,
       style: TextStyle(
-        color: colors.onSurface,
+        color: colors.inversePrimary,
         fontSize: 20,
         fontWeight: FontWeight.bold,
       ),

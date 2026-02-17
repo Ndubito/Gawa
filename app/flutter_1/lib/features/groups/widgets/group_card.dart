@@ -34,13 +34,13 @@ class GroupCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.tertiary,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -56,7 +56,7 @@ class GroupCard extends StatelessWidget {
                     style:  TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: colors.inversePrimary,
                     ),
                   ),
                 ),
@@ -105,7 +105,7 @@ class GroupCard extends StatelessWidget {
                                 left: i * 20.0,
                                 child: CircleAvatar(
                                   radius: 16,
-                                  backgroundColor: colors.primary.withValues(alpha: 0.8 - (i * 0.1)),
+                                  backgroundColor: colors.inversePrimary.withValues(alpha: 0.8 - (i * 0.1)),
                                   child: Text(
                                     memberAvatars[i],
                                     style:  TextStyle(

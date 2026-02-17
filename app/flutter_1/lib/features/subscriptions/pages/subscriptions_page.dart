@@ -68,7 +68,6 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(20),
-                  color: colors.surface,
                   constraints: const BoxConstraints(minHeight: 800), // Fill screen roughly
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,9 +116,9 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                                 },
                                 selectedColor: colors.primary,
                                 labelStyle: TextStyle(
-                                  color: isSelected ? colors.onPrimary : Colors.black,
+                                  color: isSelected ? colors.tertiary : colors.inversePrimary,
                                 ),
-                                backgroundColor: Colors.white,
+                                backgroundColor: colors.tertiary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                   side: BorderSide.none,
@@ -139,11 +138,11 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                             child: Column(
                               children: [
                                 Icon(Icons.search_off,
-                                    size: 48, color: Colors.grey[400]),
+                                    size: 48, color: colors.primary),
                                 const SizedBox(height: 16),
                                 Text(
                                   'No subscriptions found',
-                                  style: TextStyle(color: Colors.grey[600]),
+                                  style: TextStyle(color: colors.primary),
                                 ),
                               ],
                             ),
