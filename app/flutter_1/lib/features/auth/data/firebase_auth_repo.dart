@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_1/features/auth/domain/entities/app_user.dart';
 import 'package:flutter_1/features/auth/domain/repos/auth_repo.dart';
-import 'package:flutter_1/features/auth/presentation/cubits/auth_state.dart';
 
 /*
   FIREBASE IS OUR AUTHENTICATION BACKEND

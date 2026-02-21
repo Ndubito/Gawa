@@ -3,9 +3,9 @@ import 'package:flutter_1/features/auth/data/firebase_auth_repo.dart';
 import 'package:flutter_1/features/auth/presentation/components/loading.dart';
 import 'package:flutter_1/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:flutter_1/features/auth/presentation/cubits/auth_state.dart';
-import 'package:flutter_1/features/auth/presentation/pages/auth_page.dart';
+import 'package:flutter_1/features/auth/presentation/pages/input_phone_number.dart';
+import 'package:flutter_1/features/auth/presentation/pages/login_page_phone.dart';
 
-import 'package:flutter_1/features/home/home_page.dart';
 import 'package:flutter_1/features/navigation/main_scaffold.dart';
 import 'package:flutter_1/themes/dark_mode.dart';
 import 'package:flutter_1/themes/light_mode.dart';
@@ -43,12 +43,16 @@ class App extends StatelessWidget {
           builder: (context, state) {
             //unauthenticated -> auth page (Register/Login)
             if (state is Unauthenticated) {
-              return const AuthPage();
+              return const InputPhoneNumber();
             }
 
             //authenticated - Home Page
             if (state is Authenticated) {
               return const MainScaffold();
+            }
+            //code sent
+            if (state is CodeSent) {
+              return LoginPagePhone(verificatonId: state.verificationId,);
             }
             // loading...
             else {
