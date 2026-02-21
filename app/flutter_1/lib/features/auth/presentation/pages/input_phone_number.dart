@@ -63,7 +63,7 @@ class _InputPhoneNumberState extends State<InputPhoneNumber> {
 
               //name of app
               Text(
-                "Lets create and account for you",
+                "Lets create an account for you",
                 style: TextStyle(fontSize: 16, color: colors.primary),
               ),
 
@@ -79,7 +79,7 @@ class _InputPhoneNumberState extends State<InputPhoneNumber> {
               const SizedBox(height: 20),
 
               //login button
-              MyButton(onTap: sendOtp, text: "Sign Up"),
+              MyButton(onTap: sendOtp, text: "Continue"),
 
               //oauth
               SizedBox(height: 25),

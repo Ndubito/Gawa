@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_1/features/auth/domain/entities/app_user.dart';
 import 'package:flutter_1/features/auth/domain/repos/auth_repo.dart';
 
@@ -106,6 +107,9 @@ class FirebaseAuthRepo extends AuthRepo {
   }
 
 
+  // Web Confirmation Result
+  ConfirmationResult? _webConfirmationResult;
+
   //verify user's phone number
   @override
   Future<void> verifyPhoneNumber({
@@ -113,40 +117,58 @@ class FirebaseAuthRepo extends AuthRepo {
     required Function(String verificationId) codeSent,
     required Function(String error) verificationFailed,
   }) async {
-    await firebaseAuth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      timeout: const Duration(seconds: 60),
-      //handle verification success
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await firebaseAuth.signInWithCredential(credential);
-      },
-      //handle errors
-      verificationFailed: (FirebaseAuthException e) {
-        verificationFailed(e.message ?? 'Verification failed');
-      },
-      //what to do when SMS code is sent to user
-      codeSent: (String verificationId, int? resendToken) {
-        codeSent(verificationId);
-      },
-      //what do do if inactive
-      codeAutoRetrievalTimeout: (_) {},
-    );
+    try {
+      if (kIsWeb) {
+        // Web flow automatically handles reCAPTCHA
+        _webConfirmationResult =
+            await firebaseAuth.signInWithPhoneNumber(phoneNumber);
+        // Trigger codeSent to navigate UI to OTP page. (verificationId is dummy for web)
+        codeSent('web-verification-id');
+      } else {
+        // Mobile flow
+        await firebaseAuth.verifyPhoneNumber(
+          phoneNumber: phoneNumber,
+          timeout: const Duration(seconds: 60),
+          //handle verification success
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            await firebaseAuth.signInWithCredential(credential);
+          },
+          //handle errors
+          verificationFailed: (FirebaseAuthException e) {
+            verificationFailed(e.message ?? 'Verification failed');
+          },
+          //what to do when SMS code is sent to user
+          codeSent: (String verificationId, int? resendToken) {
+            codeSent(verificationId);
+          },
+          //what do do if inactive
+          codeAutoRetrievalTimeout: (_) {},
+        );
+      }
+    } catch (e) {
+      verificationFailed(e.toString());
+    }
   }
 
   //LOGIN with phone number using OTP
   @override
   Future<AppUser?> verifyOtp(String verificationId, String smsCode) async {
     try {
-      //get credentials
-      final credential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: smsCode,
-      );
+      UserCredential userCredential;
 
-      //attempt sign in with credentials
-      final userCredential = await firebaseAuth.signInWithCredential(
-        credential,
-      );
+      if (kIsWeb && _webConfirmationResult != null) {
+        // Web Flow uses ConfirmationResult
+        userCredential = await _webConfirmationResult!.confirm(smsCode);
+      } else {
+        // Mobile Flow uses PhoneAuthProvider
+        final credential = PhoneAuthProvider.credential(
+          verificationId: verificationId,
+          smsCode: smsCode,
+        );
+
+        //attempt sign in with credentials
+        userCredential = await firebaseAuth.signInWithCredential(credential);
+      }
 
       final user = userCredential.user;
 
@@ -155,7 +177,7 @@ class FirebaseAuthRepo extends AuthRepo {
       //create user
       return AppUser(uid: user.uid, phone: user.phoneNumber);
 
-    //handle errors
+      //handle errors
     } on Exception catch (e) {
       throw Exception("Failed to log in: $e");
     }
