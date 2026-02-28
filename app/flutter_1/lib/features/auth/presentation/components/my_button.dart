@@ -14,7 +14,7 @@ class MyButton extends StatelessWidget {
         padding: EdgeInsets.all(25),
         decoration: BoxDecoration(
           //color of the button
-          color: Theme.of(context).colorScheme.tertiary,
+          color: Theme.of(context).colorScheme.inversePrimary,
 
           //curve corners
           borderRadius: BorderRadius.circular(15),
@@ -22,9 +22,9 @@ class MyButton extends StatelessWidget {
         child: Center(
           child: Text(
             text,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onPrimary),
           ),
-        ),
+        ),  
       ),
     );
   }

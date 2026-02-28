@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../home/widgets/heading_text.dart';
 import '../../payment_methods/pages/payment_methods_page.dart';
 import 'payout_destinations_page.dart';
+import 'package:flutter_1/features/auth/presentation/cubits/auth_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -9,6 +11,9 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+
+    final authCubit = context.read<AuthCubit>();
+
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -138,7 +143,7 @@ class ProfilePage extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () {authCubit.logout();},
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Colors.red),
                             padding: const EdgeInsets.symmetric(vertical: 16),
