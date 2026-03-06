@@ -18,6 +18,11 @@ class Authenticated extends AuthState{
   Authenticated(this.user);
 }
 
+class WrongOtp extends AuthState{
+  final String verificationId;
+  WrongOtp(this.verificationId);
+}
+
 //unauthenticated
 class Unauthenticated extends AuthState{}
 

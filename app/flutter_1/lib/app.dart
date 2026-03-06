@@ -54,6 +54,10 @@ class App extends StatelessWidget {
             if (state is CodeSent) {
               return LoginPagePhone(verificatonId: state.verificationId,);
             }
+            //wrong OTP code
+            if(state is WrongOtp){
+              return LoginPagePhone(verificatonId: state.verificationId);
+            }
             // loading...
             else {
               return const LoadingScreen();

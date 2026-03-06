@@ -119,6 +119,7 @@ class AuthCubit extends Cubit<AuthState> {
         },
         verificationFailed: (error) {
           emit(AuthError(error));
+          emit(Unauthenticated());
         },
       );
     } catch (e) {
@@ -138,10 +139,10 @@ class AuthCubit extends Cubit<AuthState> {
         emit(Authenticated(user));
       } else {
         emit(AuthError("OTP verification failed"));
-        emit(Unauthenticated());
       }
     } catch (e) {
       emit(AuthError(e.toString()));
+      emit(WrongOtp(verificationId));
     }
   }
 }
