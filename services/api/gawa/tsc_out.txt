@@ -1,0 +1,9 @@
+src/app.controller.spec.ts(2,10): error TS2305: Module '"./app.controller"' has no exported member 'AppController'.
+src/modules/users/infrastructure/user.repository.impl.ts(54,7): error TS2322: Type 'Omit<UserOrmEntity, "user_id" | "created_at" | "updated_at" | "deleted_at"> & Partial<UserOrmEntity>' is not assignable to type '(Without<UserUpdateInput, UserUncheckedUpdateInput> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput)'.
+  Type 'Omit<UserOrmEntity, "user_id" | "created_at" | "updated_at" | "deleted_at"> & Partial<UserOrmEntity>' is not assignable to type 'Without<UserUncheckedUpdateInput, UserUpdateInput> & UserUpdateInput'.
+    Type 'Omit<UserOrmEntity, "user_id" | "created_at" | "updated_at" | "deleted_at"> & Partial<UserOrmEntity>' is not assignable to type 'Without<UserUncheckedUpdateInput, UserUpdateInput>'.
+      Types of property 'user_id' are incompatible.
+        Type 'number | undefined' is not assignable to type 'undefined'.
+          Type 'number' is not assignable to type 'undefined'.
+src/modules/users/presentation/user.dto.ts(1,59): error TS2307: Cannot find module 'class-validator' or its corresponding type declarations.
+test/app.e2e-spec.ts(5,10): error TS2305: Module '"../src/app.module"' has no exported member 'AppModule'.
