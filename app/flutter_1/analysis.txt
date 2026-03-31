@@ -1,0 +1,14 @@
+Analyzing flutter_1...                                          
+
+warning - Unused import: '../../home/widgets/bottom_navigation.dart' - lib\features\groups\pages\group_details_page.dart:3:8 - unused_import
+warning - The value of the local variable 'colors' isn't used - lib\features\groups\pages\groups_page.dart:13:11 - unused_local_variable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\groups\widgets\member_item.dart:24:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\groups\widgets\member_item.dart:53:56 - deprecated_member_use
+warning - Unused import: '../../theme/app_dimens.dart' - lib\features\home\main_layout.dart:7:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\home\main_layout.dart:50:35 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\features\subscriptions\pages\create_subscription_wizard.dart:179:11 - deprecated_member_use
+warning - This default clause is covered by the previous cases - lib\shared\widgets\status_pill.dart:42:7 - unreachable_switch_default
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\theme\app_theme.dart:23:9 - deprecated_member_use
+   info - 'onBackground' is deprecated and shouldn't be used. Use onSurface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\theme\app_theme.dart:24:9 - deprecated_member_use
+  error - The argument type 'CardTheme' can't be assigned to the parameter type 'CardThemeData?'.  - lib\theme\app_theme.dart:53:18 - argument_type_not_assignable
+

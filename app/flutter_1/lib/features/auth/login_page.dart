@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_1/features/home/home_page.dart';
+import 'package:flutter_1/features/home/main_layout.dart';
+import 'package:flutter_1/features/navigation/main_scaffold.dart';
 import 'register_page.dart';
 
 class LoginPage extends StatelessWidget {
@@ -93,7 +94,7 @@ class LoginPage extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const HomePage(),
+                                builder: (context) => const MainScaffold(),
                               ),
                             ),
                           },

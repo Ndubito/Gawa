@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_1/features/auth/login_page.dart';
-import 'package:flutter_1/features/auth/register_page.dart';
-
+import 'package:flutter_1/features/navigation/main_scaffold.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -27,9 +26,15 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromRGBO(17, 45, 78, 1)),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromRGBO(0, 81, 255, 1),
+          brightness: Brightness.light,
+          primary: const Color.fromRGBO(0, 81, 255, 1),
+          surface: Color(0xFFf2f4f5)
+          
+          ),
       ),
-      home: const LoginPage(),
+      home: const MainScaffold(),
     );
   }
 } 
