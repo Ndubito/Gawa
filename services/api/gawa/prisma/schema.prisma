@@ -1,0 +1,308 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//////////////////////////////////////////////////////
+// ENUMS
+//////////////////////////////////////////////////////
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum Currency {
+  KES
+  USD
+  EUR
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+}
+
+enum SubscriptionSchedule {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum ShareType {
+  FIXED
+  PERCENTAGE
+}
+
+enum CycleStatus {
+  UPCOMING
+  ACTIVE
+  CLOSED
+}
+
+enum ObligationStatus {
+  PENDING
+  PARTIAL
+  PAID
+  CANCELLED
+  OVERDUE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+enum ObligationSourceType {
+  SUBSCRIPTION_CYCLE
+  EXPENSE
+}
+
+//////////////////////////////////////////////////////
+// USERS
+//////////////////////////////////////////////////////
+
+model User {
+  user_id      Int        @id @default(autoincrement())
+  full_name    String
+  phone_number String
+  email        String?    @unique
+  status       UserStatus @default(ACTIVE)
+  created_at   DateTime   @default(now()) @db.Timestamptz
+  updated_at   DateTime @default(now()) @db.Timestamptz
+  deleted_at   DateTime @default(now()) @db.Timestamptz
+
+  ownedGroups         Group[]              @relation("GroupOwner")
+  groupMembership     GroupMember[]
+  organizedSubs       Subscription[]       @relation("SubscriptionOrganizer")
+  receivedSubs        Subscription[]       @relation("SubscriptionRecipient")
+  obligations         Obligation[]         @relation("ObligationDebtor")
+  receivables         Obligation[]         @relation("ObligationCreditor")
+  payments            Payment[]            @relation("PaymentPayer")
+  expensesPaid        Expense[]            @relation("ExpensePayer")
+  subscriptionMembership SubscriptionMember[]
+  expenses            Expense[]
+  expenseSplits       ExpenseSplit[]
+}
+
+//////////////////////////////////////////////////////
+// GROUPS
+//////////////////////////////////////////////////////
+
+model Group {
+  group_id          Int      @id @default(autoincrement())
+  group_name        String
+  group_description String?
+  created_at        DateTime @default(now()) @db.Timestamptz
+  updated_at        DateTime @default(now()) @db.Timestamptz
+  deleted_at        DateTime @default(now()) @db.Timestamptz
+
+  owner_id Int
+  owner    User @relation("GroupOwner", fields: [owner_id], references: [user_id])
+
+  members       GroupMember[]
+  subscriptions Subscription[]
+  expenses      Expense[]
+}
+
+model GroupMember {
+  group_id Int
+  user_id  Int
+  role     String?
+
+  group Group @relation(fields: [group_id], references: [group_id])
+  user  User  @relation(fields: [user_id], references: [user_id])
+
+  @@id([group_id, user_id])
+}
+
+//////////////////////////////////////////////////////
+// SUBSCRIPTIONS
+//////////////////////////////////////////////////////
+
+model Subscription {
+  subscription_id Int @id @default(autoincrement())
+
+  group_id Int
+  group    Group @relation(fields: [group_id], references: [group_id])
+
+  recipient_id Int
+  recipient    User @relation("SubscriptionRecipient", fields: [recipient_id], references: [user_id])
+
+  organizer_id Int
+  organizer    User @relation("SubscriptionOrganizer", fields: [organizer_id], references: [user_id])
+
+
+  name         String
+  description  String?
+  amount_cents Int
+  currency     Currency               @default(KES)
+  schedule     SubscriptionSchedule
+  grace_hours  Int
+  status       SubscriptionStatus
+  start_date   DateTime
+  created_at   DateTime             @default(now()) @db.Timestamptz
+  updated_at   DateTime             @default(now()) @db.Timestamptz
+  deleted_at   DateTime             @default(now()) @db.Timestamptz
+  members SubscriptionMember[]
+  cycles  SubscriptionCycle[]
+
+  @@index([group_id])
+
+}
+
+model SubscriptionMember {
+  user_id         Int
+  subscription_id Int
+  share_value     Int
+  share_type      ShareType
+
+  user         User         @relation(fields: [user_id], references: [user_id])
+  subscription Subscription @relation(fields: [subscription_id], references: [subscription_id])
+
+  @@id([user_id, subscription_id])
+}
+
+model SubscriptionCycle {
+  subscription_cycle_id Int @id @default(autoincrement())
+
+  subscription_id Int
+  subscription    Subscription @relation(fields: [subscription_id], references: [subscription_id])
+
+  period_start DateTime
+  period_end   DateTime
+  due_at       DateTime
+  status       CycleStatus
+  updated_at   DateTime @default(now())     @db.Timestamptz
+
+  obligations Obligation[]
+}
+
+//////////////////////////////////////////////////////
+// EXPENSES
+//////////////////////////////////////////////////////
+
+model Expense {
+  expense_id Int @id @default(autoincrement())
+
+  organizer_id Int
+  organizer    User @relation(fields: [organizer_id], references: [user_id])
+
+  group_id Int?
+  group    Group? @relation(fields: [group_id], references: [group_id])
+
+  payer_id Int
+  payer    User @relation("ExpensePayer", fields: [payer_id], references: [user_id])
+
+  total_amount Int
+  name         String
+  description  String?
+  created_at   DateTime  @default(now()) @db.Timestamptz
+  updated_at   DateTime  @default(now()) @db.Timestamptz
+  deleted_at   DateTime? @db.Timestamptz
+
+  splits      ExpenseSplit[]
+  obligations Obligation[]
+
+  @@index([group_id])
+}
+
+model ExpenseSplit {
+  expense_id  Int
+  user_id     Int
+  share_value Int
+  share_type  ShareType
+
+  expense Expense @relation(fields: [expense_id], references: [expense_id])
+  user    User    @relation(fields: [user_id], references: [user_id])
+
+  @@id([expense_id, user_id])
+}
+
+//////////////////////////////////////////////////////
+// OBLIGATIONS
+//////////////////////////////////////////////////////
+
+model Obligation {
+  obligation_id Int @id @default(autoincrement())
+
+  subscription_cycle_id Int?
+  subscription_cycle    SubscriptionCycle? @relation(fields: [subscription_cycle_id], references: [subscription_cycle_id]) //TODO - They both cannot be null, one has to be selected
+
+  expense_id Int?
+  expense    Expense? @relation(fields: [expense_id], references: [expense_id]) //TODO - They both cannot be null, one has to be selected
+
+  user_id Int
+  user    User @relation("ObligationDebtor", fields: [user_id], references: [user_id])
+
+  recipient_id Int
+  recipient    User @relation("ObligationCreditor", fields: [recipient_id], references: [user_id])
+
+  source_type ObligationSourceType
+
+  amount_due  Int
+  amount_paid Int              @default(0)
+  currency    Currency         @default(KES)
+  status      ObligationStatus
+  due_at      DateTime
+  created_at  DateTime         @default(now()) @db.Timestamptz
+  updated_at DateTime          @default(now()) @db.Timestamptz
+
+  payments Payment[]
+
+  @@index([user_id, recipient_id, status, due_at])
+}
+
+//////////////////////////////////////////////////////
+// PAYMENTS
+//////////////////////////////////////////////////////
+
+model Payment {
+  payment_id Int @id @default(autoincrement())
+
+  obligation_id Int
+  obligation    Obligation @relation(fields: [obligation_id], references: [obligation_id])
+
+  payer_id Int
+  payer    User @relation("PaymentPayer", fields: [payer_id], references: [user_id])
+
+  amount          Int
+  currency        Currency        @default(KES)
+  status          PaymentStatus
+  payment_method  String?
+  idempotency_key String?       @unique
+  created_at      DateTime      @default(now()) @db.Timestamptz
+  updated_at      DateTime      @updatedAt @db.Timestamptz
+
+  transactions Transaction[]
+
+  @@index([obligation_id])
+}
+
+//////////////////////////////////////////////////////
+// TRANSACTIONS
+//////////////////////////////////////////////////////
+
+model Transaction {
+  transaction_id Int @id @default(autoincrement())
+
+  payment_id Int
+  payment    Payment @relation(fields: [payment_id], references: [payment_id])
+
+  provider           String
+  provider_reference String
+  provider_name      String
+  raw_response       Json
+  status             String
+  created_at         DateTime @default(now()) @db.Timestamptz
+}
