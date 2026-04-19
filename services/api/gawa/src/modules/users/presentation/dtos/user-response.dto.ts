@@ -11,6 +11,6 @@ export class UserResponseDto{
         this.fullName = user.fullName
         this.email = user.email
         this.phoneNumber = user.phoneNumber
-        this.status = user.status
+        this.status = user.status       
     }
 }
