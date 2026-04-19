@@ -59,8 +59,13 @@ export class UserRepositoryImpl implements IUserRepository {
   }
 
   async delete(id: number): Promise<void> {
-    await this.prisma.user.delete({
+    await this.prisma.user.update({
       where: { user_id: id },
+      data: {
+        updated_at: new Date(),
+        deleted_at: new Date(),
+        status: 'INACTIVE',
+      },
     });
   }
 }
