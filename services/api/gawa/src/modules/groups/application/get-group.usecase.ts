@@ -11,11 +11,21 @@ export class GetGroupUseCase {
 
   async execute(id: number, requesterId: number): Promise<Group> {
     const group = await this.groupRepository.findById(id);
-    // A group someone else owns is "not found", not "forbidden" — don't leak existence
-    if (!group || group.ownerId !== requesterId) {
+    // Owners and members may read; everyone else gets "not found"
+    // rather than "forbidden" so group ids don't leak.
+    const allowed =
+      group &&
+      (group.ownerId === requesterId ||
+        (await this.groupRepository.isMember(id, requesterId)));
+    if (!allowed) {
       throw new NotFoundException(`Group with ID ${id} not found`);
     }
     return group;
+  }
+
+  /// Groups the user owns or is a member of.
+  async executeForUser(userId: number): Promise<Group[]> {
+    return this.groupRepository.findByUser(userId);
   }
 
   async executeByOwner(ownerId: number): Promise<Group[]> {

@@ -1,25 +1,29 @@
 class GroupMemberModel {
-  final int groupId;
   final int userId;
-  final String? role;
+  final String? fullName;
+  final String? phoneNumber;
+  final String role;
 
   const GroupMemberModel({
-    required this.groupId,
     required this.userId,
-    this.role,
+    this.fullName,
+    this.phoneNumber,
+    required this.role,
   });
+
+  bool get isOwner => role == 'owner';
+
+  /// Best available display name — placeholder users are named
+  /// after their phone number until they sign up.
+  String get displayName =>
+      (fullName != null && fullName!.isNotEmpty) ? fullName! : (phoneNumber ?? 'Member');
 
   factory GroupMemberModel.fromJson(Map<String, dynamic> json) {
     return GroupMemberModel(
-      groupId: json['groupId'] as int,
       userId: json['userId'] as int,
-      role: json['role'] as String?,
+      fullName: json['fullName'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
+      role: json['role'] as String,
     );
   }
-
-  Map<String, dynamic> toJson() => {
-        'groupId': groupId,
-        'userId': userId,
-        if (role != null) 'role': role,
-      };
 }
