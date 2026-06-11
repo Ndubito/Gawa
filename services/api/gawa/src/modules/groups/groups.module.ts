@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { UsersModule } from '../users/users.module';
 import { GroupController } from './presentation/group.controller';
 import { CreateGroupUseCase } from './application/create-group.usecase';
 import { GetGroupUseCase } from './application/get-group.usecase';
@@ -9,6 +10,7 @@ import { GroupRepositoryImpl } from './infrastructure/prisma/group.repository.im
 import { PrismaService } from '../../../prisma/prisma.service';
 
 @Module({
+  imports: [UsersModule],
   controllers: [GroupController],
   providers: [
     PrismaService,

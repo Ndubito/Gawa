@@ -8,9 +8,11 @@ export class DeleteGroupUseCase {
     private readonly groupRepository: IGroupRepository,
   ) {}
 
-  async execute(id: number): Promise<void> {
+  async execute(id: number, requesterId: number): Promise<void> {
     const group = await this.groupRepository.findById(id);
-    if (!group) throw new NotFoundException(`Group with ID ${id} not found`);
+    if (!group || group.ownerId !== requesterId) {
+      throw new NotFoundException(`Group with ID ${id} not found`);
+    }
 
     group.delete();
     await this.groupRepository.delete(id);

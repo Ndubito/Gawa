@@ -9,13 +9,16 @@ export class GetGroupUseCase {
     private readonly groupRepository: IGroupRepository,
   ) {}
 
-  async execute(id: number): Promise<Group> {
+  async execute(id: number, requesterId: number): Promise<Group> {
     const group = await this.groupRepository.findById(id);
-    if (!group) throw new NotFoundException(`Group with ID ${id} not found`);
+    // A group someone else owns is "not found", not "forbidden" — don't leak existence
+    if (!group || group.ownerId !== requesterId) {
+      throw new NotFoundException(`Group with ID ${id} not found`);
+    }
     return group;
   }
 
-  async executeAll(): Promise<Group[]> {
-    return this.groupRepository.findAll();
+  async executeByOwner(ownerId: number): Promise<Group[]> {
+    return this.groupRepository.findByOwnerId(ownerId);
   }
 }

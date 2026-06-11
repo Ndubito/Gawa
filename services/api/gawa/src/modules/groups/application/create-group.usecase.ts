@@ -10,11 +10,11 @@ export class CreateGroupUseCase {
     private readonly groupRepository: IGroupRepository,
   ) {}
 
-  async execute(dto: CreateGroupDto): Promise<Group> {
+  async execute(dto: CreateGroupDto, ownerId: number): Promise<Group> {
     const group = new Group({
       name: dto.name,
       description: dto.description,
-      ownerId: dto.ownerId,
+      ownerId,
     });
     return this.groupRepository.save(group);
   }

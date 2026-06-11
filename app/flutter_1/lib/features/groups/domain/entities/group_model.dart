@@ -26,16 +26,4 @@ class GroupModel {
     );
   }
 
-  /// Used for create request bodies.
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'ownerId': ownerId,
-        if (description != null) 'description': description,
-      };
-
-  /// Used for update request bodies (only mutable fields).
-  Map<String, dynamic> toUpdateJson() => {
-        'name': name,
-        if (description != null) 'description': description,
-      };
 }

@@ -18,7 +18,20 @@ export class SyncFirebaseUserUseCase {
 
   async execute(payload: FirebaseUserPayload): Promise<User> {
     const existing = await this.userRepository.findByFirebaseUid(payload.uid);
-    if (existing) return existing;
+    if (existing) {
+      // Token claims can grow over time (e.g. phone added later) — backfill gaps
+      const newPhone =
+        payload.phoneNumber && !existing.phoneNumber
+          ? payload.phoneNumber
+          : undefined;
+      const newEmail =
+        payload.email && !existing.email ? payload.email : undefined;
+      if (newPhone || newEmail) {
+        existing.updateProfile(undefined, newEmail, newPhone);
+        return this.userRepository.update(existing);
+      }
+      return existing;
+    }
 
     // A user row may pre-date Firebase sign-in (e.g. added by phone) — link it
     if (payload.phoneNumber) {
