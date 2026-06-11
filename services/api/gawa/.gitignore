@@ -3,3 +3,6 @@ node_modules
 /generated/prisma
 
 dist/
+# Never commit Firebase service account keys
+firebase-service-account.json
+*service-account*.json
