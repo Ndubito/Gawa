@@ -1,3 +1,6 @@
+// Load .env before anything else so GOOGLE_APPLICATION_CREDENTIALS is set
+// when firebase-admin initializes (it reads the env var at init time).
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';

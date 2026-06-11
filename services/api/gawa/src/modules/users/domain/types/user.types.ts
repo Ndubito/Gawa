@@ -6,6 +6,7 @@ export enum UserStatus {
 
 export interface UserProps {
   id?: number;
+  firebaseUid?: string | null;
   fullName: string;
   phoneNumber: string;
   email?: string | null;

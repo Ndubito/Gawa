@@ -4,6 +4,7 @@ import { CreateUserUseCase } from './application/create-user.usecase';
 import { GetUserUseCase } from './application/get-user.usecase';
 import { UpdateUserUseCase } from './application/update-user.usecase';
 import { DeleteUserUseCase } from './application/delete-user.usecase';
+import { SyncFirebaseUserUseCase } from './application/sync-firebase-user.usecase';
 import { USER_REPOSITORY_TOKEN } from './domain/repos/user.repository';
 import { UserRepositoryImpl } from './infrastructure/prisma/user.repository.impl';
 import { PrismaService } from '../../../prisma/prisma.service';
@@ -20,12 +21,14 @@ import { PrismaService } from '../../../prisma/prisma.service';
     GetUserUseCase,
     UpdateUserUseCase,
     DeleteUserUseCase,
+    SyncFirebaseUserUseCase,
   ],
   exports: [
     CreateUserUseCase,
     GetUserUseCase,
     UpdateUserUseCase,
     DeleteUserUseCase,
+    SyncFirebaseUserUseCase,
     USER_REPOSITORY_TOKEN,
   ],
 })

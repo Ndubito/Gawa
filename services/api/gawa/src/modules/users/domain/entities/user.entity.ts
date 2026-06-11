@@ -17,6 +17,10 @@ export class User {
     return this.props.id;
   }
 
+  get firebaseUid(): string | null | undefined {
+    return this.props.firebaseUid;
+  }
+
   get fullName(): string {
     return this.props.fullName;
   }
@@ -62,5 +66,13 @@ export class User {
   public assignId(id: number): void {
     if (this.props.id) throw new Error('ID is already assigned');
     this.props.id = id;
+  }
+
+  public linkFirebaseUid(firebaseUid: string): void {
+    if (this.props.firebaseUid && this.props.firebaseUid !== firebaseUid) {
+      throw new Error('User is already linked to a different Firebase account');
+    }
+    this.props.firebaseUid = firebaseUid;
+    this.props.updatedAt = new Date();
   }
 }
