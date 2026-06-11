@@ -1,9 +1,9 @@
 export class UserResponseDto{
-    id: String
-    fullName: String
-    email: String
-    phoneNumber: String
-    status: String
+    id: number
+    fullName: string
+    email: string
+    phoneNumber: string
+    status: string
     
 
     constructor(user: any){

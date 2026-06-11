@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_1/features/activity/pages/activity_page.dart';
-import 'package:flutter_1/features/groups/pages/groups_page.dart';
-import 'package:flutter_1/features/home/home_page.dart';
-import 'package:flutter_1/features/profile/pages/profile_page.dart';
-import 'package:flutter_1/features/subscriptions/pages/subscriptions_page.dart';
-import 'package:flutter_1/features/home/widgets/bottom_navigation.dart';
+import 'package:flutter_1/features/activity/presentation/pages/activity_page.dart';
+import 'package:flutter_1/features/groups/presentation/pages/groups_page.dart';
+import 'package:flutter_1/features/home/presentation/pages/home_page.dart';
+import 'package:flutter_1/features/profile/presentation/pages/profile_page.dart';
+import 'package:flutter_1/features/subscriptions/presentation/pages/subscriptions_page.dart';
+import 'package:flutter_1/features/home/presentation/widgets/bottom_navigation.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
