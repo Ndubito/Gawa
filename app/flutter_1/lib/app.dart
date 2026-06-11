@@ -6,6 +6,8 @@ import 'package:flutter_1/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:flutter_1/features/auth/presentation/cubits/auth_state.dart';
 import 'package:flutter_1/features/auth/presentation/pages/input_phone_number.dart';
 import 'package:flutter_1/features/auth/presentation/pages/login_page_phone.dart';
+import 'package:flutter_1/features/groups/data/groups_repo_impl.dart';
+import 'package:flutter_1/features/groups/presentation/cubits/groups_cubit.dart';
 
 import 'package:flutter_1/features/navigation/main_scaffold.dart';
 import 'package:flutter_1/themes/dark_mode.dart';
@@ -21,6 +23,9 @@ class App extends StatelessWidget {
   //backend user repo (Firebase account -> backend user row)
   final backendUserRepo = BackendUserRepoImpl();
 
+  //groups repo
+  final groupsRepo = GroupsRepoImpl();
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -33,6 +38,11 @@ class App extends StatelessWidget {
             authRepo: firebaseAuthRepo,
             backendUserRepo: backendUserRepo,
           )..checkAuth(),
+        ),
+
+        //groups cubit
+        BlocProvider<GroupsCubit>(
+          create: (context) => GroupsCubit(groupsRepo: groupsRepo),
         ),
       ],
       child: MaterialApp(

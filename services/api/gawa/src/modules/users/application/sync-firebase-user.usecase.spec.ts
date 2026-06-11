@@ -36,6 +36,25 @@ describe('SyncFirebaseUserUseCase', () => {
     expect(repo.update).not.toHaveBeenCalled();
   });
 
+  it('backfills a missing phone number on a later login', async () => {
+    const existing = new User({
+      id: 5,
+      firebaseUid: 'uid-5',
+      fullName: 'Gawa User',
+      phoneNumber: '',
+    });
+    repo.findByFirebaseUid.mockResolvedValue(existing);
+    repo.update.mockImplementation(async (u) => u);
+
+    const result = await useCase.execute({
+      uid: 'uid-5',
+      phoneNumber: '+254700000005',
+    });
+
+    expect(result.phoneNumber).toBe('+254700000005');
+    expect(repo.update).toHaveBeenCalledWith(existing);
+  });
+
   it('links the firebase uid to an existing user found by phone number', async () => {
     const byPhone = new User({
       id: 2,

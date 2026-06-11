@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 class GroupDetailsHeader extends StatelessWidget {
-  const GroupDetailsHeader({super.key});
+  final String title;
+
+  const GroupDetailsHeader({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
-    
     final colors = Theme.of(context).colorScheme;
 
     return Container(
@@ -15,22 +16,20 @@ class GroupDetailsHeader extends StatelessWidget {
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon:  Icon(Icons.arrow_back, color: colors.onSurface),
+            icon: Icon(Icons.arrow_back, color: colors.onSurface),
           ),
           const SizedBox(width: 8),
-           Expanded(
+          Expanded(
             child: Text(
-              "Family Netflix",
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: colors.onSurface,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon:  Icon(Icons.more_vert, color: colors.onSurface),
           ),
         ],
       ),

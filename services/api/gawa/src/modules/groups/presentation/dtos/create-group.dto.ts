@@ -1,9 +1,8 @@
-import { IsString, IsNotEmpty, IsOptional, IsInt } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateGroupDto {
-  constructor(name: string, ownerId: number, description?: string) {
+  constructor(name: string, description?: string) {
     this.name = name;
-    this.ownerId = ownerId;
     this.description = description;
   }
 
@@ -14,8 +13,4 @@ export class CreateGroupDto {
   @IsString()
   @IsOptional()
   description?: string;
-
-  @IsInt()
-  @IsNotEmpty()
-  ownerId: number;
 }

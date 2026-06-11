@@ -9,12 +9,24 @@ export class GroupRepositoryImpl implements IGroupRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: number): Promise<Group | null> {
-    const raw = await this.prisma.group.findUnique({ where: { group_id: id } });
+    const raw = await this.prisma.group.findFirst({
+      where: { group_id: id, deleted_at: null },
+    });
     return raw ? GroupMapper.toDomain(raw) : null;
   }
 
+  async findByOwnerId(ownerId: number): Promise<Group[]> {
+    const raws = await this.prisma.group.findMany({
+      where: { owner_id: ownerId, deleted_at: null },
+      orderBy: { created_at: 'desc' },
+    });
+    return raws.map((raw) => GroupMapper.toDomain(raw));
+  }
+
   async findAll(): Promise<Group[]> {
-    const raws = await this.prisma.group.findMany();
+    const raws = await this.prisma.group.findMany({
+      where: { deleted_at: null },
+    });
     return raws.map((raw) => GroupMapper.toDomain(raw));
   }
 
