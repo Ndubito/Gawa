@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_1/features/auth/data/backend_user_repo_impl.dart';
 import 'package:flutter_1/features/auth/data/firebase_auth_repo.dart';
 import 'package:flutter_1/features/auth/presentation/components/loading.dart';
 import 'package:flutter_1/features/auth/presentation/cubits/auth_cubit.dart';
@@ -17,6 +18,9 @@ class App extends StatelessWidget {
   //auth repo
   final firebaseAuthRepo = FirebaseAuthRepo();
 
+  //backend user repo (Firebase account -> backend user row)
+  final backendUserRepo = BackendUserRepoImpl();
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -25,8 +29,10 @@ class App extends StatelessWidget {
       providers: [
         //auth cubit
         BlocProvider<AuthCubit>(
-          create: (context) =>
-              AuthCubit(authRepo: firebaseAuthRepo)..checkAuth(),
+          create: (context) => AuthCubit(
+            authRepo: firebaseAuthRepo,
+            backendUserRepo: backendUserRepo,
+          )..checkAuth(),
         ),
       ],
       child: MaterialApp(

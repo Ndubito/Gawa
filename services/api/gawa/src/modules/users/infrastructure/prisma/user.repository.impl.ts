@@ -29,6 +29,13 @@ export class UserRepositoryImpl implements IUserRepository {
     return raw ? UserMapper.toDomain(raw) : null;
   }
 
+  async findByFirebaseUid(firebaseUid: string): Promise<User | null> {
+    const raw = await this.prisma.user.findUnique({
+      where: { firebase_uid: firebaseUid },
+    });
+    return raw ? UserMapper.toDomain(raw) : null;
+  }
+
   async findAll(): Promise<User[]> {
     const raws = await this.prisma.user.findMany();
     return raws.map((raw) => UserMapper.toDomain(raw));

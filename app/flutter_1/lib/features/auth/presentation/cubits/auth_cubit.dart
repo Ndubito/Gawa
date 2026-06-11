@@ -2,19 +2,41 @@
   Respinsible for state management
 */
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_1/features/auth/domain/entities/app_user.dart';
+import 'package:flutter_1/features/auth/domain/entities/user_model.dart';
 import 'package:flutter_1/features/auth/domain/repos/auth_repo.dart';
+import 'package:flutter_1/features/auth/domain/repos/backend_user_repo.dart';
 import 'package:flutter_1/features/auth/presentation/cubits/auth_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepo authRepo;
+  final BackendUserRepo? backendUserRepo;
   AppUser? _currentUser;
+  UserModel? _backendUser;
 
-  AuthCubit({required this.authRepo}) : super(AuthInitial());
+  AuthCubit({required this.authRepo, this.backendUserRepo})
+      : super(AuthInitial());
 
   //get current user
   AppUser? get currentUser => _currentUser;
+
+  //get the backend user row (integer id used by groups, payments, etc.)
+  UserModel? get backendUser => _backendUser;
+
+  //fetch (or create on first login) the backend user for this Firebase account
+  Future<void> _syncBackendUser() async {
+    if (backendUserRepo == null) return;
+    try {
+      _backendUser = await backendUserRepo!.getMe();
+    } catch (e) {
+      // The app stays usable offline; features needing the backend id
+      // check backendUser themselves.
+      _backendUser = null;
+      debugPrint('Backend user sync failed: $e');
+    }
+  }
 
   //check if user is Authenticated
   void checkAuth() async {
@@ -26,6 +48,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     if (user != null) {
       _currentUser = user;
+      await _syncBackendUser();
       emit(Authenticated(user));
     } else {
       emit(Unauthenticated());
@@ -40,6 +63,7 @@ class AuthCubit extends Cubit<AuthState> {
 
       if (user != null) {
         _currentUser = user;
+        await _syncBackendUser();
         emit(Authenticated(user));
       } else {
         emit(Unauthenticated());
@@ -61,6 +85,7 @@ class AuthCubit extends Cubit<AuthState> {
       );
       if (user != null) {
         _currentUser = user;
+        await _syncBackendUser();
         emit(Authenticated(user));
       } else {
         emit(Unauthenticated());
@@ -76,6 +101,8 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       emit(AuthLoading());
       await authRepo.logout();
+      _currentUser = null;
+      _backendUser = null;
       emit(Unauthenticated());
     } catch (e) {
       throw 'Cannot logout: $e';
@@ -97,6 +124,8 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       emit(AuthLoading());
       await authRepo.deleteAccount();
+      _currentUser = null;
+      _backendUser = null;
       emit(Unauthenticated());
     } catch (e) {
       emit(AuthError(e.toString()));
@@ -136,6 +165,7 @@ class AuthCubit extends Cubit<AuthState> {
 
       if (user != null) {
         _currentUser = user;
+        await _syncBackendUser();
         emit(Authenticated(user));
       } else {
         emit(AuthError("OTP verification failed"));
