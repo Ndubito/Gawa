@@ -9,12 +9,17 @@ export class SubscriptionRepositoryImpl implements ISubscriptionRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: number): Promise<Subscription | null> {
-    const raw = await this.prisma.subscription.findUnique({ where: { subscription_id: id } });
+    const raw = await this.prisma.subscription.findFirst({
+      where: { subscription_id: id, deleted_at: null },
+    });
     return raw ? SubscriptionMapper.toDomain(raw) : null;
   }
 
-  async findAll(): Promise<Subscription[]> {
-    const raws = await this.prisma.subscription.findMany();
+  async findByGroupId(groupId: number): Promise<Subscription[]> {
+    const raws = await this.prisma.subscription.findMany({
+      where: { group_id: groupId, deleted_at: null },
+      orderBy: { created_at: 'desc' },
+    });
     return raws.map((raw) => SubscriptionMapper.toDomain(raw));
   }
 

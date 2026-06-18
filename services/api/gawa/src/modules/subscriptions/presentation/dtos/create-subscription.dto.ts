@@ -1,18 +1,10 @@
-import { IsString, IsNotEmpty, IsOptional, IsInt, IsEnum, IsDateString } from 'class-validator';
-import { Currency, SubscriptionSchedule } from '../../domain/types/subscription.types';
+import { IsString, IsNotEmpty, IsOptional, IsInt, IsEnum, IsDateString, Min } from 'class-validator';
+import { SubscriptionSchedule } from '../../domain/types/subscription.types';
 
 export class CreateSubscriptionDto {
   @IsInt()
   @IsNotEmpty()
   groupId: number;
-
-  @IsInt()
-  @IsNotEmpty()
-  recipientId: number;
-
-  @IsInt()
-  @IsNotEmpty()
-  organizerId: number;
 
   @IsString()
   @IsNotEmpty()
@@ -23,19 +15,15 @@ export class CreateSubscriptionDto {
   description?: string;
 
   @IsInt()
-  @IsNotEmpty()
+  @Min(1)
   amountCents: number;
-
-  @IsEnum(Currency)
-  @IsOptional()
-  currency?: Currency;
 
   @IsEnum(SubscriptionSchedule)
   @IsNotEmpty()
   schedule: SubscriptionSchedule;
 
   @IsInt()
-  @IsNotEmpty()
+  @Min(0)
   graceHours: number;
 
   @IsDateString()
