@@ -4,6 +4,8 @@ import 'package:flutter_1/features/groups/domain/entities/group_model.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/group_members_cubit.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_cubit.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_state.dart';
+import 'package:flutter_1/features/subscriptions/presentation/cubits/group_subscriptions_cubit.dart';
+import 'package:flutter_1/features/subscriptions/presentation/cubits/subscriptions_cubit.dart';
 import '../widgets/group_card.dart';
 import '../../../home/presentation/widgets/heading_text.dart';
 import './group_details_page.dart';
@@ -185,14 +187,27 @@ class _GroupsPageState extends State<GroupsPage> {
               description: groups[i].description,
               onTap: () {
                 final groupsRepo = context.read<GroupsCubit>().groupsRepo;
+                final subsRepo =
+                    context.read<SubscriptionsCubit>().subscriptionsRepo;
+                final groupId = groups[i].id;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BlocProvider(
-                      create: (_) => GroupMembersCubit(
-                        groupsRepo: groupsRepo,
-                        groupId: groups[i].id,
-                      )..loadMembers(),
+                    builder: (context) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider(
+                          create: (_) => GroupMembersCubit(
+                            groupsRepo: groupsRepo,
+                            groupId: groupId,
+                          )..loadMembers(),
+                        ),
+                        BlocProvider(
+                          create: (_) => GroupSubscriptionsCubit(
+                            subscriptionsRepo: subsRepo,
+                            groupId: groupId,
+                          )..loadSubscriptions(),
+                        ),
+                      ],
                       child: GroupDetailsPage(group: groups[i]),
                     ),
                   ),

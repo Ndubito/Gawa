@@ -6,6 +6,11 @@ import 'package:flutter_1/features/groups/domain/entities/group_member_model.dar
 import 'package:flutter_1/features/groups/presentation/cubits/group_members_cubit.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/group_members_state.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_cubit.dart';
+import 'package:flutter_1/features/subscriptions/domain/entities/subscription_model.dart';
+import 'package:flutter_1/features/subscriptions/presentation/cubits/group_subscriptions_cubit.dart';
+import 'package:flutter_1/features/subscriptions/presentation/cubits/group_subscriptions_state.dart';
+import 'package:flutter_1/features/subscriptions/presentation/widgets/subscription_tile.dart';
+import 'package:flutter_1/features/subscriptions/presentation/widgets/add_subscription_sheet.dart';
 import '../widgets/group_details_header.dart';
 import '../widgets/group_member_tile.dart';
 import '../widgets/add_member_sheet.dart';
@@ -78,6 +83,62 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Could not remove member: $e')),
+      );
+    }
+  }
+
+  Future<void> _openAddSubscription() async {
+    final cubit = context.read<GroupSubscriptionsCubit>();
+    final added = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => BlocProvider.value(
+        value: cubit,
+        child: const AddSubscriptionSheet(),
+      ),
+    );
+
+    if (added == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Subscription created')),
+      );
+    }
+  }
+
+  Future<void> _confirmDeleteSubscription(SubscriptionModel sub) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete subscription?'),
+        content: Text(
+          '"${sub.name}" will be removed for everyone in this group.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await context.read<GroupSubscriptionsCubit>().deleteSubscription(sub.id);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not delete subscription: $e')),
       );
     }
   }
@@ -197,48 +258,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         _membersCard(colors, isOwner),
                         const SizedBox(height: 16),
 
-                        // Next-steps hint until subscriptions exist
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color:
-                                colors.inversePrimary.withValues(alpha: 0.06),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.lightbulb_outline,
-                                    size: 20,
-                                    color: colors.inversePrimary,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    "What's next",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: colors.onSurface,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                'Soon you will be able to attach a '
-                                'subscription so every member gets reminded '
-                                'when their share is due.',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        // Subscriptions
+                        _subscriptionsCard(colors, isOwner),
                         const SizedBox(height: 40),
 
                         // Danger zone — owner only
@@ -385,6 +406,134 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                     ],
                   ],
                 ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _subscriptionsCard(ColorScheme colors, bool isOwner) {
+    // Per-member share needs the member count; show it once members load.
+    final membersState = context.watch<GroupMembersCubit>().state;
+    final memberCount =
+        membersState is GroupMembersLoaded ? membersState.members.length : null;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: colors.tertiary,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: BlocBuilder<GroupSubscriptionsCubit, GroupSubscriptionsState>(
+        builder: (context, state) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Subscriptions',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: colors.onSurface,
+                    ),
+                  ),
+                  if (state is GroupSubscriptionsLoaded) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      '${state.subscriptions.length}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                  const Spacer(),
+                  if (isOwner)
+                    TextButton.icon(
+                      onPressed: _openAddSubscription,
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text('Add'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: colors.inversePrimary,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              if (state is GroupSubscriptionsLoading ||
+                  state is GroupSubscriptionsInitial)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                )
+              else if (state is GroupSubscriptionsError)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          "Couldn't load subscriptions",
+                          style: TextStyle(fontSize: 13, color: Colors.grey),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => context
+                            .read<GroupSubscriptionsCubit>()
+                            .loadSubscriptions(),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                )
+              else if (state is GroupSubscriptionsLoaded)
+                if (state.subscriptions.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      isOwner
+                          ? 'No subscriptions yet. Add one to start reminding '
+                              'members when their share is due.'
+                          : 'No subscriptions yet.',
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    ),
+                  )
+                else
+                  Column(
+                    children: [
+                      for (final sub in state.subscriptions) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: SubscriptionTile(
+                            subscription: sub,
+                            memberCount: memberCount,
+                            onDelete: isOwner
+                                ? () => _confirmDeleteSubscription(sub)
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
             ],
           );
         },

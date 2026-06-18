@@ -52,14 +52,23 @@ class SubscriptionModel {
     );
   }
 
-  /// Used for create request bodies.
-  Map<String, dynamic> toJson() => {
+  /// Total bill in whole-currency units (KES), e.g. 150000 cents -> 1500.0.
+  double get amountValue => amountCents / 100;
+
+  /// Each member's equal share. Falls back to the full amount when there are
+  /// no members to divide between.
+  double sharePerMember(int memberCount) =>
+      memberCount > 0 ? amountValue / memberCount : amountValue;
+
+  bool get isActive => status == SubscriptionStatus.active;
+
+  /// Create request body. recipient/organizer are derived from the auth token
+  /// on the backend, and currency/status default server-side — so they are
+  /// deliberately omitted (the API rejects unexpected fields).
+  Map<String, dynamic> toCreateJson() => {
         'groupId': groupId,
-        'recipientId': recipientId,
-        'organizerId': organizerId,
         'name': name,
         'amountCents': amountCents,
-        'currency': currency.value,
         'schedule': schedule.value,
         'graceHours': graceHours,
         'startDate': startDate.toIso8601String(),

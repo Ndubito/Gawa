@@ -3,7 +3,6 @@ import '../widgets/quick_action_card.dart';
 import '../widgets/charge_card.dart';
 import '../widgets/heading_text.dart';
 import '../../../groups/presentation/pages/create_group_page.dart';
-import '../../../subscriptions/presentation/pages/create_subscription_wizard.dart';
 import '../../../groups/presentation/pages/groups_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -100,7 +99,7 @@ class HomePage extends StatelessWidget {
                       const HeadingText(text: 'Quick Actions'),
                       const SizedBox(height: 12),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           QuickActionCard(
                             icon: Icons.group_add_outlined,
@@ -110,19 +109,6 @@ class HomePage extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const CreateGroupPage(),
-                                ),
-                              );
-                            },
-                          ),
-                          QuickActionCard(
-                            icon: Icons.shopping_bag_outlined,
-                            label: 'Create New\nSubscription',
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const CreateSubscriptionWizard(),
                                 ),
                               );
                             },

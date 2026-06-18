@@ -37,6 +37,7 @@ describe('Subscription use cases', () => {
     subRepo = {
       findById: jest.fn(),
       findByGroupId: jest.fn(),
+      findByGroupIds: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
@@ -140,6 +141,21 @@ describe('Subscription use cases', () => {
       groupRepo.isMember.mockResolvedValue(false);
 
       await expect(useCase.executeByGroupId(GROUP_ID, OTHER_ID)).rejects.toThrow(NotFoundException);
+    });
+
+    it('aggregates subscriptions across owned and member groups, de-duplicated', async () => {
+      const useCase = new GetSubscriptionUseCase(subRepo, groupRepo);
+      groupRepo.findByOwnerId.mockResolvedValue([makeGroup()]); // group 10
+      groupRepo.findByUser.mockResolvedValue([
+        makeGroup(), // group 10 again (owner is also a member elsewhere) -> dedupe
+        new Group({ id: 20, name: 'Spotify Split', ownerId: OTHER_ID }),
+      ]);
+      subRepo.findByGroupIds.mockResolvedValue([makeSub()]);
+
+      const subs = await useCase.executeForUser(OWNER_ID);
+
+      expect(subRepo.findByGroupIds).toHaveBeenCalledWith([GROUP_ID, 20]);
+      expect(subs).toHaveLength(1);
     });
   });
 
