@@ -6,9 +6,12 @@ import {
   Delete,
   Body,
   Param,
-  HttpException,
-  HttpStatus,
+  ParseIntPipe,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { FirebaseAuthGuard } from '../../auth/guard';
+import { SyncFirebaseUserUseCase } from '../../users/application/sync-firebase-user.usecase';
 import { CreateSubscriptionUseCase } from '../application/create-subscription.usecase';
 import { GetSubscriptionUseCase } from '../application/get-subscription.usecase';
 import { UpdateSubscriptionUseCase } from '../application/update-subscription.usecase';
@@ -17,65 +20,86 @@ import { CreateSubscriptionDto } from './dtos/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dtos/update-subscription.dto';
 import { SubscriptionResponseDto } from './dtos/subscription-response.dto';
 
+@UseGuards(FirebaseAuthGuard)
 @Controller('subscriptions')
 export class SubscriptionController {
   constructor(
+    private readonly syncUser: SyncFirebaseUserUseCase,
     private readonly createSubscriptionUseCase: CreateSubscriptionUseCase,
     private readonly getSubscriptionUseCase: GetSubscriptionUseCase,
     private readonly updateSubscriptionUseCase: UpdateSubscriptionUseCase,
     private readonly deleteSubscriptionUseCase: DeleteSubscriptionUseCase,
   ) {}
 
-  @Post()
-  async createSubscription(@Body() dto: CreateSubscriptionDto): Promise<SubscriptionResponseDto> {
-    try {
-      const subscription = await this.createSubscriptionUseCase.execute(dto);
-      return new SubscriptionResponseDto(subscription);
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
+  private async requesterId(req: any): Promise<number> {
+    const user = await this.syncUser.execute({
+      uid: req.user.uid,
+      phoneNumber: req.user.phone_number,
+      email: req.user.email,
+      fullName: req.user.name,
+    });
+    return user.id!;
   }
 
-  @Get()
-  async getAllSubscriptions(): Promise<SubscriptionResponseDto[]> {
-    try {
-      const subscriptions = await this.getSubscriptionUseCase.executeAll();
-      return subscriptions.map((s) => new SubscriptionResponseDto(s));
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  @Post()
+  async createSubscription(
+    @Body() dto: CreateSubscriptionDto,
+    @Req() req: any,
+  ): Promise<SubscriptionResponseDto> {
+    const requesterId = await this.requesterId(req);
+    const subscription = await this.createSubscriptionUseCase.execute(
+      {
+        groupId: dto.groupId,
+        name: dto.name,
+        description: dto.description,
+        amountCents: dto.amountCents,
+        schedule: dto.schedule,
+        graceHours: dto.graceHours,
+        startDate: new Date(dto.startDate),
+      },
+      requesterId,
+    );
+    return new SubscriptionResponseDto(subscription);
+  }
+
+  @Get('group/:groupId')
+  async getGroupSubscriptions(
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Req() req: any,
+  ): Promise<SubscriptionResponseDto[]> {
+    const requesterId = await this.requesterId(req);
+    const subscriptions = await this.getSubscriptionUseCase.executeByGroupId(groupId, requesterId);
+    return subscriptions.map((s) => new SubscriptionResponseDto(s));
   }
 
   @Get(':id')
-  async getSubscription(@Param('id') id: number): Promise<SubscriptionResponseDto> {
-    try {
-      const subscription = await this.getSubscriptionUseCase.execute(id);
-      return new SubscriptionResponseDto(subscription);
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-    }
+  async getSubscription(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
+  ): Promise<SubscriptionResponseDto> {
+    const requesterId = await this.requesterId(req);
+    const subscription = await this.getSubscriptionUseCase.execute(id, requesterId);
+    return new SubscriptionResponseDto(subscription);
   }
 
   @Patch(':id')
   async updateSubscription(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateSubscriptionDto,
+    @Req() req: any,
   ): Promise<SubscriptionResponseDto> {
-    try {
-      const subscription = await this.updateSubscriptionUseCase.execute({ id, ...dto });
-      return new SubscriptionResponseDto(subscription);
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
+    const requesterId = await this.requesterId(req);
+    const subscription = await this.updateSubscriptionUseCase.execute({ id, ...dto }, requesterId);
+    return new SubscriptionResponseDto(subscription);
   }
 
   @Delete(':id')
-  async deleteSubscription(@Param('id') id: number): Promise<{ success: boolean }> {
-    try {
-      await this.deleteSubscriptionUseCase.execute(id);
-      return { success: true };
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-    }
+  async deleteSubscription(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
+  ): Promise<{ success: boolean }> {
+    const requesterId = await this.requesterId(req);
+    await this.deleteSubscriptionUseCase.execute(id, requesterId);
+    return { success: true };
   }
 }
