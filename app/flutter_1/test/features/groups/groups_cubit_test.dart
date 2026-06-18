@@ -1,3 +1,4 @@
+import 'package:flutter_1/features/groups/domain/entities/group_member_model.dart';
 import 'package:flutter_1/features/groups/domain/entities/group_model.dart';
 import 'package:flutter_1/features/groups/domain/repos/groups_repo.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_cubit.dart';
@@ -7,11 +8,45 @@ import 'package:flutter_test/flutter_test.dart';
 /// In-memory fake repo; set [failing] to simulate the backend being down.
 class FakeGroupsRepo extends GroupsRepo {
   final List<GroupModel> groups = [];
+  final Map<int, List<GroupMemberModel>> members = {};
   bool failing = false;
   int _nextId = 1;
+  int _nextUserId = 100;
 
   void _maybeFail() {
     if (failing) throw Exception('backend unreachable');
+  }
+
+  @override
+  Future<List<GroupMemberModel>> getMembers(int groupId) async {
+    _maybeFail();
+    return [
+      const GroupMemberModel(userId: 1, fullName: 'Owner', role: 'owner'),
+      ...?members[groupId],
+    ];
+  }
+
+  @override
+  Future<GroupMemberModel> addMember(int groupId, String phoneNumber) async {
+    _maybeFail();
+    final existing = members[groupId] ?? [];
+    if (existing.any((m) => m.phoneNumber == phoneNumber)) {
+      throw Exception('This person is already a member');
+    }
+    final member = GroupMemberModel(
+      userId: _nextUserId++,
+      fullName: phoneNumber,
+      phoneNumber: phoneNumber,
+      role: 'member',
+    );
+    members[groupId] = [...existing, member];
+    return member;
+  }
+
+  @override
+  Future<void> removeMember(int groupId, int userId) async {
+    _maybeFail();
+    members[groupId]?.removeWhere((m) => m.userId == userId);
   }
 
   @override

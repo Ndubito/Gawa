@@ -16,10 +16,15 @@ describe('Group use cases (ownership)', () => {
     repo = {
       findById: jest.fn(),
       findByOwnerId: jest.fn(),
+      findByUser: jest.fn(),
       findAll: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      addMember: jest.fn(),
+      removeMember: jest.fn(),
+      findMembers: jest.fn(),
+      isMember: jest.fn().mockResolvedValue(false),
     };
   });
 

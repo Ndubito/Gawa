@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_1/features/groups/domain/entities/group_model.dart';
+import 'package:flutter_1/features/groups/presentation/cubits/group_members_cubit.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_cubit.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_state.dart';
 import '../widgets/group_card.dart';
@@ -183,10 +184,17 @@ class _GroupsPageState extends State<GroupsPage> {
               groupName: groups[i].name,
               description: groups[i].description,
               onTap: () {
+                final groupsRepo = context.read<GroupsCubit>().groupsRepo;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => GroupDetailsPage(group: groups[i]),
+                    builder: (context) => BlocProvider(
+                      create: (_) => GroupMembersCubit(
+                        groupsRepo: groupsRepo,
+                        groupId: groups[i].id,
+                      )..loadMembers(),
+                      child: GroupDetailsPage(group: groups[i]),
+                    ),
                   ),
                 );
               },
