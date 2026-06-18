@@ -8,6 +8,8 @@ import 'package:flutter_1/features/auth/presentation/pages/input_phone_number.da
 import 'package:flutter_1/features/auth/presentation/pages/login_page_phone.dart';
 import 'package:flutter_1/features/groups/data/groups_repo_impl.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_cubit.dart';
+import 'package:flutter_1/features/subscriptions/data/subscriptions_repo_impl.dart';
+import 'package:flutter_1/features/subscriptions/presentation/cubits/subscriptions_cubit.dart';
 
 import 'package:flutter_1/features/navigation/main_scaffold.dart';
 import 'package:flutter_1/themes/dark_mode.dart';
@@ -26,6 +28,9 @@ class App extends StatelessWidget {
   //groups repo
   final groupsRepo = GroupsRepoImpl();
 
+  //subscriptions repo
+  final subscriptionsRepo = SubscriptionsRepoImpl();
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -43,6 +48,12 @@ class App extends StatelessWidget {
         //groups cubit
         BlocProvider<GroupsCubit>(
           create: (context) => GroupsCubit(groupsRepo: groupsRepo),
+        ),
+
+        //subscriptions cubit (aggregate "my subscriptions" tab)
+        BlocProvider<SubscriptionsCubit>(
+          create: (context) =>
+              SubscriptionsCubit(subscriptionsRepo: subscriptionsRepo),
         ),
       ],
       child: MaterialApp(
