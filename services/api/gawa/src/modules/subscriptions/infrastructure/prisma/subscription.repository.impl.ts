@@ -23,6 +23,15 @@ export class SubscriptionRepositoryImpl implements ISubscriptionRepository {
     return raws.map((raw) => SubscriptionMapper.toDomain(raw));
   }
 
+  async findByGroupIds(groupIds: number[]): Promise<Subscription[]> {
+    if (groupIds.length === 0) return [];
+    const raws = await this.prisma.subscription.findMany({
+      where: { group_id: { in: groupIds }, deleted_at: null },
+      orderBy: { created_at: 'desc' },
+    });
+    return raws.map((raw) => SubscriptionMapper.toDomain(raw));
+  }
+
   async save(subscription: Subscription): Promise<Subscription> {
     const data = SubscriptionMapper.toOrm(subscription);
     delete data.subscription_id;

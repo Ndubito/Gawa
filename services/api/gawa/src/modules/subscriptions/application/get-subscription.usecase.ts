@@ -27,4 +27,14 @@ export class GetSubscriptionUseCase {
     if (!isMember) throw new NotFoundException(`Group ${groupId} not found`);
     return this.subscriptionRepository.findByGroupId(groupId);
   }
+
+  // Every subscription across the groups the requester owns or belongs to.
+  async executeForUser(requesterId: number): Promise<Subscription[]> {
+    const [owned, member] = await Promise.all([
+      this.groupRepository.findByOwnerId(requesterId),
+      this.groupRepository.findByUser(requesterId),
+    ]);
+    const groupIds = [...new Set([...owned, ...member].map((g) => g.id!))];
+    return this.subscriptionRepository.findByGroupIds(groupIds);
+  }
 }

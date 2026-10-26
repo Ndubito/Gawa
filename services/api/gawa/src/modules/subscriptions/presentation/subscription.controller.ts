@@ -62,6 +62,13 @@ export class SubscriptionController {
     return new SubscriptionResponseDto(subscription);
   }
 
+  @Get('mine')
+  async getMySubscriptions(@Req() req: any): Promise<SubscriptionResponseDto[]> {
+    const requesterId = await this.requesterId(req);
+    const subscriptions = await this.getSubscriptionUseCase.executeForUser(requesterId);
+    return subscriptions.map((s) => new SubscriptionResponseDto(s));
+  }
+
   @Get('group/:groupId')
   async getGroupSubscriptions(
     @Param('groupId', ParseIntPipe) groupId: number,
