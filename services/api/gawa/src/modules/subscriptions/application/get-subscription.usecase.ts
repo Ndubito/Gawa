@@ -1,7 +1,17 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { Subscription } from '../domain/entities/subscription.entity';
-import { type ISubscriptionRepository, SUBSCRIPTION_REPOSITORY_TOKEN } from '../domain/repos/subscription.repository';
-import { type IGroupRepository, GROUP_REPOSITORY_TOKEN } from '../../groups/domain/repos/group.repository';
+import {
+  type ISubscriptionRepository,
+  SUBSCRIPTION_REPOSITORY_TOKEN,
+} from '../domain/repos/subscription.repository';
+import {
+  type IGroupRepository,
+  GROUP_REPOSITORY_TOKEN,
+} from '../../groups/domain/repos/group.repository';
+import {
+  GroupAccessPolicy,
+  GROUP_VIEWERS,
+} from '../../groups/application/group-access.policy';
 
 @Injectable()
 export class GetSubscriptionUseCase {
@@ -10,31 +20,34 @@ export class GetSubscriptionUseCase {
     private readonly subscriptionRepository: ISubscriptionRepository,
     @Inject(GROUP_REPOSITORY_TOKEN)
     private readonly groupRepository: IGroupRepository,
+    private readonly access: GroupAccessPolicy,
   ) {}
 
   async execute(id: number, requesterId: number): Promise<Subscription> {
     const subscription = await this.subscriptionRepository.findById(id);
-    if (!subscription) throw new NotFoundException(`Subscription ${id} not found`);
+    if (!subscription)
+      throw new NotFoundException(`Subscription ${id} not found`);
 
-    const isMember = await this.groupRepository.isMember(subscription.groupId, requesterId);
-    if (!isMember) throw new NotFoundException(`Subscription ${id} not found`);
-
+    await this.access.require(
+      subscription.groupId,
+      requesterId,
+      GROUP_VIEWERS,
+      `Subscription ${id} not found`,
+    );
     return subscription;
   }
 
-  async executeByGroupId(groupId: number, requesterId: number): Promise<Subscription[]> {
-    const isMember = await this.groupRepository.isMember(groupId, requesterId);
-    if (!isMember) throw new NotFoundException(`Group ${groupId} not found`);
+  async executeByGroupId(
+    groupId: number,
+    requesterId: number,
+  ): Promise<Subscription[]> {
+    await this.access.require(groupId, requesterId, GROUP_VIEWERS);
     return this.subscriptionRepository.findByGroupId(groupId);
   }
 
-  // Every subscription across the groups the requester owns or belongs to.
+  // Every subscription across the groups the requester owns or has joined.
   async executeForUser(requesterId: number): Promise<Subscription[]> {
-    const [owned, member] = await Promise.all([
-      this.groupRepository.findByOwnerId(requesterId),
-      this.groupRepository.findByUser(requesterId),
-    ]);
-    const groupIds = [...new Set([...owned, ...member].map((g) => g.id!))];
-    return this.subscriptionRepository.findByGroupIds(groupIds);
+    const groups = await this.groupRepository.findByUser(requesterId);
+    return this.subscriptionRepository.findByGroupIds(groups.map((g) => g.id!));
   }
 }

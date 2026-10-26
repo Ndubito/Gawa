@@ -8,6 +8,8 @@ import { DeleteGroupUseCase } from './application/delete-group.usecase';
 import { AddGroupMemberUseCase } from './application/add-group-member.usecase';
 import { RemoveGroupMemberUseCase } from './application/remove-group-member.usecase';
 import { ListGroupMembersUseCase } from './application/list-group-members.usecase';
+import { GroupInvitesUseCase } from './application/group-invites.usecase';
+import { GroupAccessPolicy } from './application/group-access.policy';
 import { GROUP_REPOSITORY_TOKEN } from './domain/repos/group.repository';
 import { GroupRepositoryImpl } from './infrastructure/prisma/group.repository.impl';
 import { PrismaService } from '../../../prisma/prisma.service';
@@ -21,6 +23,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
       provide: GROUP_REPOSITORY_TOKEN,
       useClass: GroupRepositoryImpl,
     },
+    GroupAccessPolicy,
     CreateGroupUseCase,
     GetGroupUseCase,
     UpdateGroupUseCase,
@@ -28,16 +31,8 @@ import { PrismaService } from '../../../prisma/prisma.service';
     AddGroupMemberUseCase,
     RemoveGroupMemberUseCase,
     ListGroupMembersUseCase,
+    GroupInvitesUseCase,
   ],
-  exports: [
-    CreateGroupUseCase,
-    GetGroupUseCase,
-    UpdateGroupUseCase,
-    DeleteGroupUseCase,
-    AddGroupMemberUseCase,
-    RemoveGroupMemberUseCase,
-    ListGroupMembersUseCase,
-    GROUP_REPOSITORY_TOKEN,
-  ],
+  exports: [GroupAccessPolicy, GROUP_REPOSITORY_TOKEN],
 })
 export class GroupsModule {}

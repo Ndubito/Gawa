@@ -50,22 +50,11 @@ class GroupMemberTile extends StatelessWidget {
                   ),
                   if (member.isOwner) ...[
                     const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: colors.inversePrimary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        'Owner',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: colors.inversePrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                    _Badge(label: 'Owner', color: colors.inversePrimary),
+                  ],
+                  if (member.isPending) ...[
+                    const SizedBox(width: 6),
+                    const _Badge(label: 'Pending', color: Colors.orange),
                   ],
                 ],
               ),
@@ -84,9 +73,35 @@ class GroupMemberTile extends StatelessWidget {
             onPressed: onRemove,
             icon: const Icon(Icons.person_remove_outlined,
                 size: 20, color: Colors.grey),
-            tooltip: 'Remove member',
+            tooltip: member.isPending ? 'Revoke invite' : 'Remove member',
           ),
       ],
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  final String label;
+  final Color color;
+
+  const _Badge({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 }

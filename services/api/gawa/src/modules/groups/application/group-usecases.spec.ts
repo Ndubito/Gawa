@@ -3,109 +3,104 @@ import { CreateGroupUseCase } from './create-group.usecase';
 import { GetGroupUseCase } from './get-group.usecase';
 import { UpdateGroupUseCase } from './update-group.usecase';
 import { DeleteGroupUseCase } from './delete-group.usecase';
-import { IGroupRepository } from '../domain/repos/group.repository';
-import { Group } from '../domain/entities/group.entity';
+import { GroupAccessPolicy } from './group-access.policy';
+import { InMemoryGroupRepository } from '../testing/in-memory-group.repository';
+import { GroupMemberStatus } from '../domain/types/group.types';
 
-describe('Group use cases (ownership)', () => {
-  let repo: jest.Mocked<IGroupRepository>;
+const OWNER = 1;
+const MEMBER = 2;
+const INVITEE = 3;
+const STRANGER = 99;
+const GROUP = 10;
 
-  const ownedGroup = () =>
-    new Group({ id: 10, name: 'Family Netflix', ownerId: 1 });
+describe('Group use cases', () => {
+  let repo: InMemoryGroupRepository;
+  let access: GroupAccessPolicy;
 
   beforeEach(() => {
-    repo = {
-      findById: jest.fn(),
-      findByOwnerId: jest.fn(),
-      findByUser: jest.fn(),
-      findAll: jest.fn(),
-      save: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      addMember: jest.fn(),
-      removeMember: jest.fn(),
-      findMembers: jest.fn(),
-      isMember: jest.fn().mockResolvedValue(false),
-    };
+    repo = new InMemoryGroupRepository();
+    repo.seedGroup({ id: GROUP, ownerId: OWNER, name: 'Family Netflix' });
+    repo.seedMember(GROUP, MEMBER, GroupMemberStatus.ACTIVE);
+    repo.seedMember(GROUP, INVITEE, GroupMemberStatus.INVITED);
+    access = new GroupAccessPolicy(repo);
   });
 
   describe('CreateGroupUseCase', () => {
     it('assigns the owner from the authenticated requester, not the dto', async () => {
-      const useCase = new CreateGroupUseCase(repo);
-      repo.save.mockImplementation(async (g) => g);
-
-      const group = await useCase.execute(
+      const group = await new CreateGroupUseCase(repo).execute(
         { name: 'Office Spotify', description: 'music' },
         42,
       );
 
       expect(group.ownerId).toBe(42);
       expect(group.name).toBe('Office Spotify');
-      expect(repo.save).toHaveBeenCalled();
     });
   });
 
   describe('GetGroupUseCase', () => {
-    it('returns the group to its owner', async () => {
-      const useCase = new GetGroupUseCase(repo);
-      repo.findById.mockResolvedValue(ownedGroup());
-
-      const group = await useCase.execute(10, 1);
-      expect(group.id).toBe(10);
+    it.each([OWNER, MEMBER])('returns the group to user %i', async (userId) => {
+      const group = await new GetGroupUseCase(repo, access).execute(
+        GROUP,
+        userId,
+      );
+      expect(group.id).toBe(GROUP);
     });
 
-    it('throws NotFound for a non-owner (no existence leak)', async () => {
-      const useCase = new GetGroupUseCase(repo);
-      repo.findById.mockResolvedValue(ownedGroup());
+    it.each([INVITEE, STRANGER])(
+      '404s user %i (no existence leak)',
+      async (userId) => {
+        await expect(
+          new GetGroupUseCase(repo, access).execute(GROUP, userId),
+        ).rejects.toThrow(NotFoundException);
+      },
+    );
 
-      await expect(useCase.execute(10, 99)).rejects.toThrow(NotFoundException);
-    });
+    it('lists owned and joined groups but not pending invites', async () => {
+      repo.seedGroup({ id: 20, ownerId: STRANGER });
+      repo.seedMember(20, MEMBER, GroupMemberStatus.INVITED);
+      const useCase = new GetGroupUseCase(repo, access);
 
-    it('lists only the owner groups via the repository', async () => {
-      const useCase = new GetGroupUseCase(repo);
-      repo.findByOwnerId.mockResolvedValue([ownedGroup()]);
-
-      const groups = await useCase.executeByOwner(1);
-      expect(repo.findByOwnerId).toHaveBeenCalledWith(1);
-      expect(groups).toHaveLength(1);
+      expect((await useCase.executeForUser(OWNER)).map((g) => g.id)).toEqual([
+        GROUP,
+      ]);
+      expect((await useCase.executeForUser(MEMBER)).map((g) => g.id)).toEqual([
+        GROUP,
+      ]);
+      expect(await useCase.executeForUser(INVITEE)).toEqual([]);
     });
   });
 
   describe('UpdateGroupUseCase', () => {
     it('updates when the requester owns the group', async () => {
-      const useCase = new UpdateGroupUseCase(repo);
-      repo.findById.mockResolvedValue(ownedGroup());
-      repo.update.mockImplementation(async (g) => g);
-
-      const group = await useCase.execute({ id: 10, name: 'Renamed' }, 1);
+      const group = await new UpdateGroupUseCase(repo, access).execute(
+        { id: GROUP, name: 'Renamed' },
+        OWNER,
+      );
       expect(group.name).toBe('Renamed');
     });
 
-    it('throws NotFound for a non-owner', async () => {
-      const useCase = new UpdateGroupUseCase(repo);
-      repo.findById.mockResolvedValue(ownedGroup());
-
+    it.each([MEMBER, INVITEE, STRANGER])('404s user %i', async (userId) => {
       await expect(
-        useCase.execute({ id: 10, name: 'Hijack' }, 99),
+        new UpdateGroupUseCase(repo, access).execute(
+          { id: GROUP, name: 'Hijack' },
+          userId,
+        ),
       ).rejects.toThrow(NotFoundException);
-      expect(repo.update).not.toHaveBeenCalled();
+      expect((await repo.findById(GROUP))!.name).toBe('Family Netflix');
     });
   });
 
   describe('DeleteGroupUseCase', () => {
-    it('deletes when the requester owns the group', async () => {
-      const useCase = new DeleteGroupUseCase(repo);
-      repo.findById.mockResolvedValue(ownedGroup());
-
-      await useCase.execute(10, 1);
-      expect(repo.delete).toHaveBeenCalledWith(10);
+    it('soft-deletes when the requester owns the group', async () => {
+      await new DeleteGroupUseCase(repo, access).execute(GROUP, OWNER);
+      expect(await repo.findById(GROUP)).toBeNull();
     });
 
-    it('throws NotFound for a non-owner', async () => {
-      const useCase = new DeleteGroupUseCase(repo);
-      repo.findById.mockResolvedValue(ownedGroup());
-
-      await expect(useCase.execute(10, 99)).rejects.toThrow(NotFoundException);
-      expect(repo.delete).not.toHaveBeenCalled();
+    it.each([MEMBER, INVITEE, STRANGER])('404s user %i', async (userId) => {
+      await expect(
+        new DeleteGroupUseCase(repo, access).execute(GROUP, userId),
+      ).rejects.toThrow(NotFoundException);
+      expect(await repo.findById(GROUP)).not.toBeNull();
     });
   });
 });

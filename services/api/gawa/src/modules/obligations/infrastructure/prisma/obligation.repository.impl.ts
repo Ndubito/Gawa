@@ -9,12 +9,17 @@ export class ObligationRepositoryImpl implements IObligationRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: number): Promise<Obligation | null> {
-    const raw = await this.prisma.obligation.findUnique({ where: { obligation_id: id } });
+    const raw = await this.prisma.obligation.findUnique({
+      where: { obligation_id: id },
+    });
     return raw ? ObligationMapper.toDomain(raw) : null;
   }
 
-  async findAll(): Promise<Obligation[]> {
-    const raws = await this.prisma.obligation.findMany();
+  async findForUser(userId: number): Promise<Obligation[]> {
+    const raws = await this.prisma.obligation.findMany({
+      where: { OR: [{ user_id: userId }, { recipient_id: userId }] },
+      orderBy: { due_at: 'desc' },
+    });
     return raws.map((raw) => ObligationMapper.toDomain(raw));
   }
 

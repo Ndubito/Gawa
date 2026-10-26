@@ -35,6 +35,7 @@ void main() {
       final state = cubit.state as GroupMembersLoaded;
       expect(state.members, hasLength(2));
       expect(state.members.last.phoneNumber, '+254712345678');
+      expect(state.members.last.isPending, isTrue);
     });
 
     test('addMember propagates duplicate errors', () async {

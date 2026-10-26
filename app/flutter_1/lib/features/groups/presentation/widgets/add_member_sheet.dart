@@ -65,7 +65,7 @@ class _AddMemberSheetState extends State<AddMemberSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Add a member',
+            'Invite a member',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -74,8 +74,9 @@ class _AddMemberSheetState extends State<AddMemberSheet> {
           ),
           const SizedBox(height: 4),
           const Text(
-            "They join right away — even before installing Gawa. "
-            "Their account links up when they sign in with this number.",
+            "They'll see your invite in Groups and join once they accept. "
+            "It works even before they install Gawa — it waits for them "
+            "to sign in with this number.",
             style: TextStyle(fontSize: 13, color: Colors.grey),
           ),
           const SizedBox(height: 16),
@@ -111,7 +112,7 @@ class _AddMemberSheetState extends State<AddMemberSheet> {
                       ),
                     )
                   : const Icon(Icons.person_add_outlined),
-              label: Text(_saving ? 'Adding...' : 'Add Member'),
+              label: Text(_saving ? 'Sending...' : 'Send Invite'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: colors.inversePrimary,
                 foregroundColor: colors.onPrimary,

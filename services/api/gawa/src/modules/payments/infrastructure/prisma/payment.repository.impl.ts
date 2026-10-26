@@ -9,12 +9,19 @@ export class PaymentRepositoryImpl implements IPaymentRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: number): Promise<Payment | null> {
-    const raw = await this.prisma.payment.findUnique({ where: { payment_id: id } });
+    const raw = await this.prisma.payment.findUnique({
+      where: { payment_id: id },
+    });
     return raw ? PaymentMapper.toDomain(raw) : null;
   }
 
-  async findAll(): Promise<Payment[]> {
-    const raws = await this.prisma.payment.findMany();
+  async findForUser(userId: number): Promise<Payment[]> {
+    const raws = await this.prisma.payment.findMany({
+      where: {
+        obligation: { OR: [{ user_id: userId }, { recipient_id: userId }] },
+      },
+      orderBy: { created_at: 'desc' },
+    });
     return raws.map((raw) => PaymentMapper.toDomain(raw));
   }
 

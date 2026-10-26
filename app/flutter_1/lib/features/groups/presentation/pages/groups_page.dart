@@ -4,6 +4,8 @@ import 'package:flutter_1/features/groups/domain/entities/group_model.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/group_members_cubit.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_cubit.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_state.dart';
+import 'package:flutter_1/features/groups/presentation/cubits/invites_cubit.dart';
+import 'package:flutter_1/features/groups/presentation/widgets/invitations_section.dart';
 import 'package:flutter_1/features/subscriptions/presentation/cubits/group_subscriptions_cubit.dart';
 import 'package:flutter_1/features/subscriptions/presentation/cubits/subscriptions_cubit.dart';
 import '../widgets/group_card.dart';
@@ -33,55 +35,77 @@ class _GroupsPageState extends State<GroupsPage> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: colors.surface,
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 440),
-          child: RefreshIndicator(
-            onRefresh: () => context.read<GroupsCubit>().loadGroups(),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    HeadingText(text: 'Groups'),
-                    const SizedBox(height: 12),
+    return BlocProvider(
+      create: (_) =>
+          InvitesCubit(groupsRepo: context.read<GroupsCubit>().groupsRepo)
+            ..loadInvites(),
+      child: Scaffold(
+        backgroundColor: colors.surface,
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: Builder(
+              builder: (innerContext) => RefreshIndicator(
+                onRefresh: () => Future.wait([
+                  context.read<GroupsCubit>().loadGroups(),
+                  innerContext.read<InvitesCubit>().loadInvites(),
+                ]),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        HeadingText(text: 'Groups'),
+                        const SizedBox(height: 12),
 
-                    LongActionButton(
-                      buttonLabel: const Text("Create New Group"),
-                      icon: const Icon(Icons.add),
-                      onClick: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CreateGroupPage(),
-                          ),
-                        );
-                      },
+                        LongActionButton(
+                          buttonLabel: const Text("Create New Group"),
+                          icon: const Icon(Icons.add),
+                          onClick: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const CreateGroupPage(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 12),
+
+                        InvitationsSection(
+                          onAccepted: () =>
+                              context.read<GroupsCubit>().loadGroups(),
+                        ),
+
+                        BlocBuilder<GroupsCubit, GroupsState>(
+                          builder: (context, state) {
+                            if (state is GroupsLoading ||
+                                state is GroupsInitial) {
+                              return _buildLoading(colors);
+                            }
+                            if (state is GroupsError) {
+                              return _buildError(
+                                context,
+                                colors,
+                                state.message,
+                              );
+                            }
+                            final groups = (state as GroupsLoaded).groups;
+                            if (groups.isEmpty) {
+                              return _buildEmpty(colors);
+                            }
+                            return _buildList(groups);
+                          },
+                        ),
+
+                        const SizedBox(
+                          height: 100,
+                        ), // Space for floating nav bar
+                      ],
                     ),
-                    const SizedBox(height: 12),
-
-                    BlocBuilder<GroupsCubit, GroupsState>(
-                      builder: (context, state) {
-                        if (state is GroupsLoading || state is GroupsInitial) {
-                          return _buildLoading(colors);
-                        }
-                        if (state is GroupsError) {
-                          return _buildError(context, colors, state.message);
-                        }
-                        final groups = (state as GroupsLoaded).groups;
-                        if (groups.isEmpty) {
-                          return _buildEmpty(colors);
-                        }
-                        return _buildList(groups);
-                      },
-                    ),
-
-                    const SizedBox(height: 100), // Space for floating nav bar
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -187,8 +211,9 @@ class _GroupsPageState extends State<GroupsPage> {
               description: groups[i].description,
               onTap: () {
                 final groupsRepo = context.read<GroupsCubit>().groupsRepo;
-                final subsRepo =
-                    context.read<SubscriptionsCubit>().subscriptionsRepo;
+                final subsRepo = context
+                    .read<SubscriptionsCubit>()
+                    .subscriptionsRepo;
                 final groupId = groups[i].id;
                 Navigator.push(
                   context,

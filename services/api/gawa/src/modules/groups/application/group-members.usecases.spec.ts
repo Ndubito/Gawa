@@ -2,39 +2,35 @@ import { NotFoundException, ConflictException } from '@nestjs/common';
 import { AddGroupMemberUseCase } from './add-group-member.usecase';
 import { RemoveGroupMemberUseCase } from './remove-group-member.usecase';
 import { ListGroupMembersUseCase } from './list-group-members.usecase';
+import { GroupInvitesUseCase } from './group-invites.usecase';
 import { GetGroupUseCase } from './get-group.usecase';
-import { IGroupRepository } from '../domain/repos/group.repository';
+import { GroupAccessPolicy } from './group-access.policy';
+import { InMemoryGroupRepository } from '../testing/in-memory-group.repository';
+import { GroupMemberStatus } from '../domain/types/group.types';
 import { IUserRepository } from '../../users/domain/repos/user.repository';
-import { Group } from '../domain/entities/group.entity';
-import { GroupMember } from '../domain/entities/group-member.entity';
 import { User } from '../../users/domain/entities/user.entity';
 
-describe('Group member use cases', () => {
-  let groupRepo: jest.Mocked<IGroupRepository>;
+const OWNER = 1;
+const MEMBER = 2;
+const INVITEE = 3;
+const STRANGER = 99;
+const GROUP = 10;
+
+describe('Group membership use cases', () => {
+  let repo: InMemoryGroupRepository;
+  let access: GroupAccessPolicy;
   let userRepo: jest.Mocked<IUserRepository>;
 
-  const group = () => new Group({ id: 10, name: 'Family Netflix', ownerId: 1 });
-  const memberUser = () =>
-    new User({ id: 2, fullName: 'Mary', phoneNumber: '+254700000002' });
-
   beforeEach(() => {
-    groupRepo = {
-      findById: jest.fn(),
-      findByOwnerId: jest.fn(),
-      findByUser: jest.fn(),
-      findAll: jest.fn(),
-      save: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      addMember: jest.fn(),
-      removeMember: jest.fn(),
-      findMembers: jest.fn(),
-      isMember: jest.fn(),
-    };
+    repo = new InMemoryGroupRepository();
+    repo.seedGroup({ id: GROUP, ownerId: OWNER });
+    repo.seedMember(GROUP, MEMBER, GroupMemberStatus.ACTIVE);
+    repo.seedMember(GROUP, INVITEE, GroupMemberStatus.INVITED);
+    access = new GroupAccessPolicy(repo);
     userRepo = {
-      findById: jest.fn(),
+      findById: jest.fn().mockResolvedValue(null),
       findByEmail: jest.fn(),
-      findByPhoneNumber: jest.fn(),
+      findByPhoneNumber: jest.fn().mockResolvedValue(null),
       findByFirebaseUid: jest.fn(),
       findAll: jest.fn(),
       save: jest.fn(),
@@ -44,179 +40,182 @@ describe('Group member use cases', () => {
   });
 
   describe('AddGroupMemberUseCase', () => {
-    it('adds an existing user found by phone number', async () => {
-      const useCase = new AddGroupMemberUseCase(groupRepo, userRepo);
-      groupRepo.findById.mockResolvedValue(group());
-      userRepo.findByPhoneNumber.mockResolvedValue(memberUser());
-      groupRepo.isMember.mockResolvedValue(false);
-
-      const member = await useCase.execute(
-        { groupId: 10, phoneNumber: '+254700000002' },
-        1,
+    const add = (phone: string, requester: number) =>
+      new AddGroupMemberUseCase(repo, userRepo, access).execute(
+        { groupId: GROUP, phoneNumber: phone },
+        requester,
       );
 
-      expect(groupRepo.addMember).toHaveBeenCalledWith(10, 2, undefined);
-      expect(member.fullName).toBe('Mary');
-      expect(member.role).toBe('member');
+    it('invites an existing user as pending, not as a member', async () => {
+      userRepo.findByPhoneNumber.mockResolvedValue(
+        new User({ id: 5, fullName: 'Mary', phoneNumber: '+254700000005' }),
+      );
+
+      const member = await add('+254700000005', OWNER);
+
+      expect(member.status).toBe(GroupMemberStatus.INVITED);
+      expect((await repo.findMembership(GROUP, 5))!.isActive).toBe(false);
+      expect(await new GetGroupUseCase(repo, access).executeForUser(5)).toEqual(
+        [],
+      );
       expect(userRepo.save).not.toHaveBeenCalled();
     });
 
     it('creates a placeholder user for an unknown phone number', async () => {
-      const useCase = new AddGroupMemberUseCase(groupRepo, userRepo);
-      groupRepo.findById.mockResolvedValue(group());
-      userRepo.findByPhoneNumber.mockResolvedValue(null);
-      groupRepo.isMember.mockResolvedValue(false);
       userRepo.save.mockImplementation(async (u) => {
         u.assignId(7);
         return u;
       });
 
-      const member = await useCase.execute(
-        { groupId: 10, phoneNumber: '+254799999999' },
-        1,
-      );
+      const member = await add('+254799999999', OWNER);
 
-      expect(userRepo.save).toHaveBeenCalled();
       expect(member.userId).toBe(7);
-      // Placeholder rows have no firebase_uid, so the existing auth sync
-      // links them by phone number on their first sign-in.
       expect(member.phoneNumber).toBe('+254799999999');
     });
 
-    it('rejects non-owners with NotFound', async () => {
-      const useCase = new AddGroupMemberUseCase(groupRepo, userRepo);
-      groupRepo.findById.mockResolvedValue(group());
+    it.each([MEMBER, INVITEE, STRANGER])(
+      '404s user %i (only the owner invites)',
+      async (userId) => {
+        await expect(add('+254700000005', userId)).rejects.toThrow(
+          NotFoundException,
+        );
+      },
+    );
 
-      await expect(
-        useCase.execute({ groupId: 10, phoneNumber: '+254700000002' }, 99),
-      ).rejects.toThrow(NotFoundException);
-    });
-
-    it('rejects adding the owner as a member', async () => {
-      const useCase = new AddGroupMemberUseCase(groupRepo, userRepo);
-      groupRepo.findById.mockResolvedValue(group());
+    it('rejects inviting the owner', async () => {
       userRepo.findByPhoneNumber.mockResolvedValue(
-        new User({ id: 1, fullName: 'Owner', phoneNumber: '+254700000001' }),
+        new User({
+          id: OWNER,
+          fullName: 'Owner',
+          phoneNumber: '+254700000001',
+        }),
       );
-
-      await expect(
-        useCase.execute({ groupId: 10, phoneNumber: '+254700000001' }, 1),
-      ).rejects.toThrow(ConflictException);
+      await expect(add('+254700000001', OWNER)).rejects.toThrow(
+        ConflictException,
+      );
     });
 
-    it('rejects duplicate members', async () => {
-      const useCase = new AddGroupMemberUseCase(groupRepo, userRepo);
-      groupRepo.findById.mockResolvedValue(group());
-      userRepo.findByPhoneNumber.mockResolvedValue(memberUser());
-      groupRepo.isMember.mockResolvedValue(true);
-
-      await expect(
-        useCase.execute({ groupId: 10, phoneNumber: '+254700000002' }, 1),
-      ).rejects.toThrow(ConflictException);
-      expect(groupRepo.addMember).not.toHaveBeenCalled();
+    it.each([
+      [MEMBER, 'already a member'],
+      [INVITEE, 'already been invited'],
+    ])('rejects re-inviting user %i', async (userId, message) => {
+      userRepo.findByPhoneNumber.mockResolvedValue(
+        new User({ id: userId, fullName: 'X', phoneNumber: '+254700000009' }),
+      );
+      await expect(add('+254700000009', OWNER)).rejects.toThrow(message);
     });
   });
 
   describe('RemoveGroupMemberUseCase', () => {
-    it('removes a member when requested by the owner', async () => {
-      const useCase = new RemoveGroupMemberUseCase(groupRepo);
-      groupRepo.findById.mockResolvedValue(group());
-      groupRepo.isMember.mockResolvedValue(true);
+    const remove = (memberId: number, requester: number) =>
+      new RemoveGroupMemberUseCase(repo, access).execute(
+        GROUP,
+        memberId,
+        requester,
+      );
 
-      await useCase.execute(10, 2, 1);
-      expect(groupRepo.removeMember).toHaveBeenCalledWith(10, 2);
+    it('lets the owner remove an accepted member', async () => {
+      await remove(MEMBER, OWNER);
+      expect(await repo.findMembership(GROUP, MEMBER)).toBeNull();
     });
 
-    it('rejects non-owners', async () => {
-      const useCase = new RemoveGroupMemberUseCase(groupRepo);
-      groupRepo.findById.mockResolvedValue(group());
-
-      await expect(useCase.execute(10, 2, 99)).rejects.toThrow(
-        NotFoundException,
-      );
-      expect(groupRepo.removeMember).not.toHaveBeenCalled();
+    it('lets the owner revoke a pending invite', async () => {
+      await remove(INVITEE, OWNER);
+      expect(await repo.findMembership(GROUP, INVITEE)).toBeNull();
     });
 
-    it('404s when the person is not a member', async () => {
-      const useCase = new RemoveGroupMemberUseCase(groupRepo);
-      groupRepo.findById.mockResolvedValue(group());
-      groupRepo.isMember.mockResolvedValue(false);
+    it('lets a member leave', async () => {
+      await remove(MEMBER, MEMBER);
+      expect(await repo.findMembership(GROUP, MEMBER)).toBeNull();
+    });
 
-      await expect(useCase.execute(10, 5, 1)).rejects.toThrow(
-        NotFoundException,
-      );
+    it('stops a member removing someone else', async () => {
+      await expect(remove(INVITEE, MEMBER)).rejects.toThrow(NotFoundException);
+      expect(await repo.findMembership(GROUP, INVITEE)).not.toBeNull();
+    });
+
+    it.each([INVITEE, STRANGER])('404s user %i', async (userId) => {
+      await expect(remove(MEMBER, userId)).rejects.toThrow(NotFoundException);
+      expect(await repo.findMembership(GROUP, MEMBER)).not.toBeNull();
+    });
+
+    it('404s when the person is not in the group', async () => {
+      await expect(remove(STRANGER, OWNER)).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('ListGroupMembersUseCase', () => {
-    it('returns the owner first, then members, for the owner', async () => {
-      const useCase = new ListGroupMembersUseCase(groupRepo, userRepo);
-      groupRepo.findById.mockResolvedValue(group());
-      userRepo.findById.mockResolvedValue(
-        new User({ id: 1, fullName: 'Owner', phoneNumber: '+254700000001' }),
+    const list = (requester: number) =>
+      new ListGroupMembersUseCase(repo, userRepo, access).execute(
+        GROUP,
+        requester,
       );
-      groupRepo.findMembers.mockResolvedValue([
-        new GroupMember({
-          groupId: 10,
-          userId: 2,
-          role: 'member',
-          fullName: 'Mary',
-        }),
+
+    it('shows the owner first, then everyone including pending invites, to the owner', async () => {
+      const members = await list(OWNER);
+      expect(members.map((m) => [m.userId, m.status])).toEqual([
+        [OWNER, GroupMemberStatus.ACTIVE],
+        [MEMBER, GroupMemberStatus.ACTIVE],
+        [INVITEE, GroupMemberStatus.INVITED],
       ]);
-
-      const members = await useCase.execute(10, 1);
-
-      expect(members).toHaveLength(2);
-      expect(members[0].role).toBe('owner');
-      expect(members[0].userId).toBe(1);
-      expect(members[1].fullName).toBe('Mary');
-    });
-
-    it('allows a member to view the list', async () => {
-      const useCase = new ListGroupMembersUseCase(groupRepo, userRepo);
-      groupRepo.findById.mockResolvedValue(group());
-      groupRepo.isMember.mockResolvedValue(true);
-      userRepo.findById.mockResolvedValue(null);
-      groupRepo.findMembers.mockResolvedValue([]);
-
-      const members = await useCase.execute(10, 2);
       expect(members[0].role).toBe('owner');
     });
 
-    it('404s for outsiders', async () => {
-      const useCase = new ListGroupMembersUseCase(groupRepo, userRepo);
-      groupRepo.findById.mockResolvedValue(group());
-      groupRepo.isMember.mockResolvedValue(false);
+    it('hides pending invitees from members', async () => {
+      const members = await list(MEMBER);
+      expect(members.map((m) => m.userId)).toEqual([OWNER, MEMBER]);
+    });
 
-      await expect(useCase.execute(10, 99)).rejects.toThrow(NotFoundException);
+    it.each([INVITEE, STRANGER])('404s user %i', async (userId) => {
+      await expect(list(userId)).rejects.toThrow(NotFoundException);
     });
   });
 
-  describe('GetGroupUseCase with members', () => {
-    it('lets a member read the group', async () => {
-      const useCase = new GetGroupUseCase(groupRepo);
-      groupRepo.findById.mockResolvedValue(group());
-      groupRepo.isMember.mockResolvedValue(true);
+  describe('GroupInvitesUseCase', () => {
+    let invites: GroupInvitesUseCase;
 
-      const result = await useCase.execute(10, 2);
-      expect(result.id).toBe(10);
+    beforeEach(() => {
+      invites = new GroupInvitesUseCase(repo, access);
     });
 
-    it('still 404s for outsiders', async () => {
-      const useCase = new GetGroupUseCase(groupRepo);
-      groupRepo.findById.mockResolvedValue(group());
-      groupRepo.isMember.mockResolvedValue(false);
-
-      await expect(useCase.execute(10, 99)).rejects.toThrow(NotFoundException);
+    it('lists only pending invites for the user', async () => {
+      expect(
+        (await invites.listForUser(INVITEE)).map((i) => i.groupId),
+      ).toEqual([GROUP]);
+      expect(await invites.listForUser(MEMBER)).toEqual([]);
     });
 
-    it('lists owned and member groups together', async () => {
-      const useCase = new GetGroupUseCase(groupRepo);
-      groupRepo.findByUser.mockResolvedValue([group()]);
-
-      const groups = await useCase.executeForUser(2);
-      expect(groupRepo.findByUser).toHaveBeenCalledWith(2);
-      expect(groups).toHaveLength(1);
+    it('does not list invites to deleted groups', async () => {
+      await repo.delete(GROUP);
+      expect(await invites.listForUser(INVITEE)).toEqual([]);
     });
+
+    it('accepting makes the group visible', async () => {
+      await invites.accept(GROUP, INVITEE);
+
+      const group = await new GetGroupUseCase(repo, access).execute(
+        GROUP,
+        INVITEE,
+      );
+      expect(group.id).toBe(GROUP);
+      expect(await invites.listForUser(INVITEE)).toEqual([]);
+    });
+
+    it('declining removes the invite so the owner can re-invite later', async () => {
+      await invites.decline(GROUP, INVITEE);
+      expect(await repo.findMembership(GROUP, INVITEE)).toBeNull();
+    });
+
+    it.each([OWNER, MEMBER, STRANGER])(
+      '404s user %i who has no pending invite',
+      async (userId) => {
+        await expect(invites.accept(GROUP, userId)).rejects.toThrow(
+          NotFoundException,
+        );
+        await expect(invites.decline(GROUP, userId)).rejects.toThrow(
+          NotFoundException,
+        );
+      },
+    );
   });
 });

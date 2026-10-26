@@ -68,6 +68,11 @@ enum ObligationSourceType {
   EXPENSE
 }
 
+enum GroupMemberStatus {
+  INVITED
+  ACTIVE
+}
+
 //////////////////////////////////////////////////////
 // USERS
 //////////////////////////////////////////////////////
@@ -120,6 +125,7 @@ model GroupMember {
   group_id Int
   user_id  Int
   role     String?
+  status   GroupMemberStatus @default(INVITED)
 
   group Group @relation(fields: [group_id], references: [group_id])
   user  User  @relation(fields: [user_id], references: [user_id])

@@ -1,6 +1,14 @@
-import { CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import * as admin from 'firebase-admin';
+import { SyncFirebaseUserUseCase } from '../users/application/sync-firebase-user.usecase';
+import { IS_PUBLIC_KEY } from './public.decorator';
+import type { AuthenticatedRequest } from './authenticated-request';
 
 // Initialize Firebase Admin SDK if not already initialized
 if (!admin.apps.length) {
@@ -11,22 +19,42 @@ if (!admin.apps.length) {
 
 @Injectable()
 export class FirebaseAuthGuard implements CanActivate {
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly syncFirebaseUser: SyncFirebaseUserUseCase,
+  ) {}
 
-    const authHeader: string | undefined = req.headers.authorization;
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+
+    const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new UnauthorizedException('Missing bearer token');
     }
 
-    const token = authHeader.split(' ')[1];
-
+    let decoded: admin.auth.DecodedIdToken;
     try {
-      const decoded = await admin.auth().verifyIdToken(token);
-      req.user = decoded;
-      return true;
+      decoded = await admin
+        .auth()
+        .verifyIdToken(authHeader.slice('Bearer '.length));
     } catch {
       throw new UnauthorizedException('Invalid or expired token');
     }
+
+    const user = await this.syncFirebaseUser.execute({
+      uid: decoded.uid,
+      phoneNumber: decoded.phone_number,
+      fullName: typeof decoded.name === 'string' ? decoded.name : undefined,
+      email: decoded.email,
+    });
+
+    req.user = decoded;
+    req.userId = user.id;
+    return true;
   }
 }

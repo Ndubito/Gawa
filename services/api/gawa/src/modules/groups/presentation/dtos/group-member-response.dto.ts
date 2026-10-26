@@ -5,11 +5,13 @@ export class GroupMemberResponseDto {
   fullName: string | null;
   phoneNumber: string | null;
   role: string;
+  status: string;
 
   constructor(member: GroupMember) {
     this.userId = member.userId;
     this.fullName = member.fullName ?? null;
     this.phoneNumber = member.phoneNumber ?? null;
     this.role = member.role;
+    this.status = member.status;
   }
 }

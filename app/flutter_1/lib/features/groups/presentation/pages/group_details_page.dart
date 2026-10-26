@@ -47,7 +47,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
     if (added == true && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Member added')),
+        const SnackBar(content: Text('Invite sent')),
       );
     }
   }
@@ -56,10 +56,13 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove member?'),
+        title: Text(member.isPending ? 'Revoke invite?' : 'Remove member?'),
         content: Text(
-          '${member.displayName} will no longer see this group '
-          'or its payments.',
+          member.isPending
+              ? "${member.displayName} won't be able to join unless "
+                  'you invite them again.'
+              : '${member.displayName} will no longer see this group '
+                  'or its payments.',
         ),
         actions: [
           TextButton(
@@ -69,7 +72,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Remove'),
+            child: Text(member.isPending ? 'Revoke' : 'Remove'),
           ),
         ],
       ),
@@ -337,7 +340,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   if (state is GroupMembersLoaded) ...[
                     const SizedBox(width: 8),
                     Text(
-                      '${state.members.length}',
+                      '${state.members.where((m) => !m.isPending).length}',
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.grey,
@@ -415,9 +418,11 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
   Widget _subscriptionsCard(ColorScheme colors, bool isOwner) {
     // Per-member share needs the member count; show it once members load.
+    // Pending invitees don't share the cost until they accept.
     final membersState = context.watch<GroupMembersCubit>().state;
-    final memberCount =
-        membersState is GroupMembersLoaded ? membersState.members.length : null;
+    final memberCount = membersState is GroupMembersLoaded
+        ? membersState.members.where((m) => !m.isPending).length
+        : null;
 
     return Container(
       width: double.infinity,

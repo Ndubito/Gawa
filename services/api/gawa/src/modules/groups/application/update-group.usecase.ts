@@ -1,8 +1,12 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Group } from '../domain/entities/group.entity';
-import { type IGroupRepository, GROUP_REPOSITORY_TOKEN } from '../domain/repos/group.repository';
+import {
+  type IGroupRepository,
+  GROUP_REPOSITORY_TOKEN,
+} from '../domain/repos/group.repository';
+import { GroupAccessPolicy, OWNER_ONLY } from './group-access.policy';
 
-export interface UpdateGroupDto {
+export interface UpdateGroupInput {
   id: number;
   name?: string;
   description?: string;
@@ -13,15 +17,16 @@ export class UpdateGroupUseCase {
   constructor(
     @Inject(GROUP_REPOSITORY_TOKEN)
     private readonly groupRepository: IGroupRepository,
+    private readonly access: GroupAccessPolicy,
   ) {}
 
-  async execute(dto: UpdateGroupDto, requesterId: number): Promise<Group> {
-    const group = await this.groupRepository.findById(dto.id);
-    if (!group || group.ownerId !== requesterId) {
-      throw new NotFoundException(`Group with ID ${dto.id} not found`);
-    }
-
-    group.update(dto.name, dto.description);
+  async execute(input: UpdateGroupInput, requesterId: number): Promise<Group> {
+    const { group } = await this.access.require(
+      input.id,
+      requesterId,
+      OWNER_ONLY,
+    );
+    group.update(input.name, input.description);
     return this.groupRepository.update(group);
   }
 }

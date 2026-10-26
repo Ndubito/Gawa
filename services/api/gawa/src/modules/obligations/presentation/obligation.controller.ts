@@ -1,68 +1,28 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  Body,
-  Param,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
-import { CreateObligationUseCase } from '../application/create-obligation.usecase';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { CurrentUserId } from '../../auth/current-user.decorator';
 import { GetObligationUseCase } from '../application/get-obligation.usecase';
-import { UpdateObligationUseCase } from '../application/update-obligation.usecase';
-import { CreateObligationDto } from './dtos/create-obligation.dto';
-import { UpdateObligationDto } from './dtos/update-obligation.dto';
 import { ObligationResponseDto } from './dtos/obligation-response.dto';
 
+// Read-only: obligations are created by the billing cycle engine, and paid
+// through the payment flow — never written directly by clients.
 @Controller('obligations')
 export class ObligationController {
-  constructor(
-    private readonly createObligationUseCase: CreateObligationUseCase,
-    private readonly getObligationUseCase: GetObligationUseCase,
-    private readonly updateObligationUseCase: UpdateObligationUseCase,
-  ) {}
-
-  @Post()
-  async createObligation(@Body() dto: CreateObligationDto): Promise<ObligationResponseDto> {
-    try {
-      const obligation = await this.createObligationUseCase.execute(dto);
-      return new ObligationResponseDto(obligation);
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
-  }
+  constructor(private readonly getObligationUseCase: GetObligationUseCase) {}
 
   @Get()
-  async getAllObligations(): Promise<ObligationResponseDto[]> {
-    try {
-      const obligations = await this.getObligationUseCase.executeAll();
-      return obligations.map((o) => new ObligationResponseDto(o));
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async getMyObligations(
+    @CurrentUserId() userId: number,
+  ): Promise<ObligationResponseDto[]> {
+    const obligations = await this.getObligationUseCase.executeForUser(userId);
+    return obligations.map((o) => new ObligationResponseDto(o));
   }
 
   @Get(':id')
-  async getObligation(@Param('id') id: number): Promise<ObligationResponseDto> {
-    try {
-      const obligation = await this.getObligationUseCase.execute(id);
-      return new ObligationResponseDto(obligation);
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-    }
-  }
-
-  @Patch(':id')
-  async updateObligation(
-    @Param('id') id: number,
-    @Body() dto: UpdateObligationDto,
+  async getObligation(
+    @CurrentUserId() userId: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<ObligationResponseDto> {
-    try {
-      const obligation = await this.updateObligationUseCase.execute({ id, ...dto });
-      return new ObligationResponseDto(obligation);
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
+    const obligation = await this.getObligationUseCase.execute(id, userId);
+    return new ObligationResponseDto(obligation);
   }
 }
