@@ -90,7 +90,7 @@ class _AddMemberSheetState extends State<AddMemberSheet> {
               prefixIcon: const Icon(Icons.phone_outlined),
               errorText: _error,
               filled: true,
-              fillColor: Colors.white,
+              fillColor: Theme.of(context).colorScheme.secondary,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,

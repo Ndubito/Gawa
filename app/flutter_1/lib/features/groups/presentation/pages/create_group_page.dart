@@ -87,7 +87,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                             decoration: InputDecoration(
                               hintText: 'e.g., Family Netflix',
                               filled: true,
-                              fillColor: Colors.white,
+                              fillColor: Theme.of(context).colorScheme.secondary,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -112,7 +112,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                             decoration: InputDecoration(
                               hintText: 'What is this group paying for?',
                               filled: true,
-                              fillColor: Colors.white,
+                              fillColor: Theme.of(context).colorScheme.secondary,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,

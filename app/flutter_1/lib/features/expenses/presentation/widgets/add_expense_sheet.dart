@@ -234,7 +234,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       prefixIcon: Icon(icon),
       prefixText: prefix,
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Theme.of(context).colorScheme.secondary,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,

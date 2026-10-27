@@ -133,7 +133,7 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: colors.secondary,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -195,7 +195,7 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
       prefixIcon: Icon(icon),
       prefixText: prefix,
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Theme.of(context).colorScheme.secondary,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
