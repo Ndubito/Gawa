@@ -50,6 +50,7 @@ Create a group  →  Add members (by phone)  →  Attach a subscription (the sha
 | ✅ | **Expenses** | Log a one-off cost you paid and split it equally with chosen members. |
 | 🗺️ | **Push notifications** | Remind members when a payment is upcoming, pending, or overdue (Firebase Cloud Messaging). |
 | 🗺️ | **Pay flow (M-Pesa)** | Tap a reminder → pay your share via M-Pesa STK Push (Daraja). |
+| 🗺️ | **Ad-hoc expenses** | Split a one-off cost with contacts — no group needed. |
 | 🗺️ | **Itemised receipts** | Scan a receipt; each member claims the items they had and pays for just those. |
 | 🗺️ | **Basic / Pro tiers** | Free tier with a group limit; Pro unlocks more. |
 
@@ -196,6 +197,7 @@ Use cases and Cubits are covered by unit tests with in-memory fakes — includin
 - [ ] Obligations in the app (what I owe / what I'm owed)
 - [ ] M-Pesa pay flow (Daraja STK Push)
 - [ ] Push notifications (upcoming / pending / overdue)
+- [ ] Ad-hoc expenses — split with contacts without making a group; participants accept or dispute before reminders start
 - [ ] Itemised receipt splitting — the payer scans the receipt, members claim the items they had and pay for those
 - [ ] Basic / Pro monetization tiers
 
