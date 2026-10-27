@@ -46,9 +46,11 @@ Create a group  →  Add members (by phone)  →  Attach a subscription (the sha
 | ✅ | **Groups** | Create and manage groups for each shared bill. Ownership is enforced server-side. |
 | ✅ | **Members** | Invite people by phone number — even before they've installed Gawa. Their account links automatically on first sign-in. |
 | ✅ | **Subscriptions** | Attach a recurring monthly bill to a group; the cost is split equally between members. |
-| 🚧 | **Cycles & obligations** | Roll each subscription over every billing period and track exactly who owes what. |
+| ✅ | **Cycles & obligations** | Roll each subscription over every billing period and track exactly who owes what. |
+| ✅ | **Expenses** | Log a one-off cost you paid and split it equally with chosen members. |
 | 🗺️ | **Push notifications** | Remind members when a payment is upcoming, pending, or overdue (Firebase Cloud Messaging). |
 | 🗺️ | **Pay flow (M-Pesa)** | Tap a reminder → pay your share via M-Pesa STK Push (Daraja). |
+| 🗺️ | **Itemised receipts** | Scan a receipt; each member claims the items they had and pays for just those. |
 | 🗺️ | **Basic / Pro tiers** | Free tier with a group limit; Pro unlocks more. |
 
 <sub>✅ shipped · 🚧 in progress · 🗺️ planned</sub>
@@ -188,9 +190,13 @@ Use cases and Cubits are covered by unit tests with in-memory fakes — includin
 - [x] Groups (CRUD, secured ownership)
 - [x] Group members (invite by phone, auto-link on signup)
 - [x] Subscriptions (group-scoped, equal split)
-- [ ] Billing cycles & per-member obligations
-- [ ] Push notifications (upcoming / pending / overdue)
+- [x] Default-deny API auth with group roles and invite acceptance
+- [x] Billing cycles & per-member obligations, with queued reminders
+- [x] One-off expenses (equal split among chosen members)
+- [ ] Obligations in the app (what I owe / what I'm owed)
 - [ ] M-Pesa pay flow (Daraja STK Push)
+- [ ] Push notifications (upcoming / pending / overdue)
+- [ ] Itemised receipt splitting — the payer scans the receipt, members claim the items they had and pay for those
 - [ ] Basic / Pro monetization tiers
 
 ---
