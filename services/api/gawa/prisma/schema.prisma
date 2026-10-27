@@ -190,9 +190,13 @@ model SubscriptionCycle {
   period_end   DateTime
   due_at       DateTime
   status       CycleStatus
+  created_at   DateTime @default(now())     @db.Timestamptz
   updated_at   DateTime @default(now())     @db.Timestamptz
 
   obligations Obligation[]
+
+  // One cycle per billing period, so re-running the engine can't double-bill
+  @@unique([subscription_id, period_start])
 }
 
 //////////////////////////////////////////////////////
@@ -243,11 +247,12 @@ model ExpenseSplit {
 model Obligation {
   obligation_id Int @id @default(autoincrement())
 
+  // Exactly one source is set — enforced by the Obligation_single_source check constraint
   subscription_cycle_id Int?
-  subscription_cycle    SubscriptionCycle? @relation(fields: [subscription_cycle_id], references: [subscription_cycle_id]) //TODO - They both cannot be null, one has to be selected
+  subscription_cycle    SubscriptionCycle? @relation(fields: [subscription_cycle_id], references: [subscription_cycle_id])
 
   expense_id Int?
-  expense    Expense? @relation(fields: [expense_id], references: [expense_id]) //TODO - They both cannot be null, one has to be selected
+  expense    Expense? @relation(fields: [expense_id], references: [expense_id])
 
   user_id Int
   user    User @relation("ObligationDebtor", fields: [user_id], references: [user_id])
@@ -262,12 +267,45 @@ model Obligation {
   currency    Currency         @default(KES)
   status      ObligationStatus
   due_at      DateTime
+  overdue_at  DateTime         @db.Timestamptz
   created_at  DateTime         @default(now()) @db.Timestamptz
   updated_at DateTime          @default(now()) @db.Timestamptz
 
-  payments Payment[]
+  payments  Payment[]
+  reminders Reminder[]
 
+  @@unique([subscription_cycle_id, user_id])
   @@index([user_id, recipient_id, status, due_at])
+  @@index([status, overdue_at])
+}
+
+//////////////////////////////////////////////////////
+// REMINDERS
+//////////////////////////////////////////////////////
+
+enum ReminderKind {
+  UPCOMING
+  DUE
+  OVERDUE
+  NUDGE
+}
+
+// Outbox of reminders to send to an obligation's debtor. Delivery (push)
+// marks sent_at; reminders for paid or cancelled obligations are skipped.
+model Reminder {
+  reminder_id Int @id @default(autoincrement())
+
+  obligation_id Int
+  obligation    Obligation @relation(fields: [obligation_id], references: [obligation_id])
+
+  kind          ReminderKind
+  sequence      Int          @default(0)
+  scheduled_for DateTime     @db.Timestamptz
+  sent_at       DateTime?    @db.Timestamptz
+  created_at    DateTime     @default(now()) @db.Timestamptz
+
+  @@unique([obligation_id, kind, sequence])
+  @@index([sent_at, scheduled_for])
 }
 
 //////////////////////////////////////////////////////

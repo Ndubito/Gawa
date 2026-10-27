@@ -37,11 +37,13 @@ describe('GetPaymentUseCase', () => {
           sourceType: ObligationSourceType.SUBSCRIPTION_CYCLE,
           amountDue: 50000,
           dueAt: new Date('2026-11-01'),
+          overdueAt: new Date('2026-11-02'),
         }),
       ),
       findForUser: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
+      cancelUnpaid: jest.fn(),
     };
     useCase = new GetPaymentUseCase(paymentRepo, obligationRepo);
   });

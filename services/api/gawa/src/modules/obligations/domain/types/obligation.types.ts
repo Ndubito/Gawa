@@ -29,6 +29,8 @@ export interface ObligationProps {
   currency?: Currency;
   status?: ObligationStatus;
   dueAt: Date;
+  // dueAt plus the grace period; unpaid obligations become OVERDUE after this
+  overdueAt: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -10,6 +10,7 @@ export class ObligationResponseDto {
   currency: string;
   status: string;
   dueAt: Date;
+  overdueAt: Date;
   createdAt: Date;
   updatedAt: Date;
 
@@ -25,6 +26,7 @@ export class ObligationResponseDto {
     this.currency = obligation.currency;
     this.status = obligation.status;
     this.dueAt = obligation.dueAt;
+    this.overdueAt = obligation.overdueAt;
     this.createdAt = obligation.createdAt;
     this.updatedAt = obligation.updatedAt;
   }

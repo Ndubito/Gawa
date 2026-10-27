@@ -5,7 +5,11 @@ import { UpdateSubscriptionUseCase } from './update-subscription.usecase';
 import { DeleteSubscriptionUseCase } from './delete-subscription.usecase';
 import { ISubscriptionRepository } from '../domain/repos/subscription.repository';
 import { Subscription } from '../domain/entities/subscription.entity';
-import { SubscriptionSchedule } from '../domain/types/subscription.types';
+import {
+  SubscriptionSchedule,
+  SubscriptionStatus,
+} from '../domain/types/subscription.types';
+import { CancelUpcomingObligationsUseCase } from '../../obligations/application/cancel-upcoming-obligations.usecase';
 import { GroupAccessPolicy } from '../../groups/application/group-access.policy';
 import { InMemoryGroupRepository } from '../../groups/testing/in-memory-group.repository';
 import { GroupMemberStatus } from '../../groups/domain/types/group.types';
@@ -43,8 +47,12 @@ describe('Subscription use cases', () => {
   let subRepo: jest.Mocked<ISubscriptionRepository>;
   let groupRepo: InMemoryGroupRepository;
   let access: GroupAccessPolicy;
+  let cancelUpcoming: jest.Mocked<CancelUpcomingObligationsUseCase>;
 
   beforeEach(() => {
+    cancelUpcoming = {
+      forStoppedSubscription: jest.fn().mockResolvedValue(0),
+    } as unknown as jest.Mocked<CancelUpcomingObligationsUseCase>;
     subRepo = {
       findById: jest.fn().mockResolvedValue(makeSub()),
       findByGroupId: jest.fn().mockResolvedValue([makeSub()]),
@@ -147,39 +155,62 @@ describe('Subscription use cases', () => {
   });
 
   describe('UpdateSubscriptionUseCase', () => {
-    it('updates when the requester is the group owner', async () => {
-      const sub = await new UpdateSubscriptionUseCase(subRepo, access).execute(
-        { id: SUB_ID, name: 'Netflix HD' },
-        OWNER,
+    const update = (
+      input: { name?: string; status?: SubscriptionStatus },
+      userId: number,
+    ) =>
+      new UpdateSubscriptionUseCase(subRepo, access, cancelUpcoming).execute(
+        { id: SUB_ID, ...input },
+        userId,
       );
+
+    it('updates when the requester is the group owner', async () => {
+      const sub = await update({ name: 'Netflix HD' }, OWNER);
       expect(sub.name).toBe('Netflix HD');
+      expect(cancelUpcoming.forStoppedSubscription).not.toHaveBeenCalled();
     });
+
+    it.each([SubscriptionStatus.PAUSED, SubscriptionStatus.CANCELLED])(
+      'withdraws not-yet-due bills when the subscription is set to %s',
+      async (status) => {
+        await update({ status }, OWNER);
+        expect(cancelUpcoming.forStoppedSubscription).toHaveBeenCalledWith(
+          SUB_ID,
+        );
+      },
+    );
 
     it.each([MEMBER, INVITEE, STRANGER])('404s user %i', async (userId) => {
       await expect(
-        new UpdateSubscriptionUseCase(subRepo, access).execute(
-          { id: SUB_ID, name: 'Hijack' },
-          userId,
-        ),
+        update({ name: 'Hijack', status: SubscriptionStatus.PAUSED }, userId),
       ).rejects.toThrow(NotFoundException);
       expect(subRepo.update).not.toHaveBeenCalled();
+      expect(cancelUpcoming.forStoppedSubscription).not.toHaveBeenCalled();
     });
   });
 
   describe('DeleteSubscriptionUseCase', () => {
-    it('deletes when the requester is the group owner', async () => {
-      await new DeleteSubscriptionUseCase(subRepo, access).execute(
-        SUB_ID,
-        OWNER,
-      );
+    it('deletes and withdraws not-yet-due bills for the group owner', async () => {
+      await new DeleteSubscriptionUseCase(
+        subRepo,
+        access,
+        cancelUpcoming,
+      ).execute(SUB_ID, OWNER);
       expect(subRepo.delete).toHaveBeenCalledWith(SUB_ID);
+      expect(cancelUpcoming.forStoppedSubscription).toHaveBeenCalledWith(
+        SUB_ID,
+      );
     });
 
     it.each([MEMBER, INVITEE, STRANGER])('404s user %i', async (userId) => {
       await expect(
-        new DeleteSubscriptionUseCase(subRepo, access).execute(SUB_ID, userId),
+        new DeleteSubscriptionUseCase(subRepo, access, cancelUpcoming).execute(
+          SUB_ID,
+          userId,
+        ),
       ).rejects.toThrow(NotFoundException);
       expect(subRepo.delete).not.toHaveBeenCalled();
+      expect(cancelUpcoming.forStoppedSubscription).not.toHaveBeenCalled();
     });
   });
 });

@@ -9,6 +9,7 @@ import { GroupsModule } from './modules/groups/groups.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { ObligationsModule } from './modules/obligations/obligations.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { BillingModule } from './modules/billing/billing.module';
 
 // Expenses and transactions are not routed until their roadmap phase.
 @Module({
@@ -19,6 +20,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
     SubscriptionsModule,
     ObligationsModule,
     PaymentsModule,
+    BillingModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: FirebaseAuthGuard }],

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { GroupsModule } from '../groups/groups.module';
+import { ObligationsModule } from '../obligations/obligations.module';
 import { SubscriptionController } from './presentation/subscription.controller';
 import { CreateSubscriptionUseCase } from './application/create-subscription.usecase';
 import { GetSubscriptionUseCase } from './application/get-subscription.usecase';
@@ -10,7 +11,7 @@ import { SubscriptionRepositoryImpl } from './infrastructure/prisma/subscription
 import { PrismaService } from '../../../prisma/prisma.service';
 
 @Module({
-  imports: [GroupsModule],
+  imports: [GroupsModule, ObligationsModule],
   controllers: [SubscriptionController],
   providers: [
     PrismaService,

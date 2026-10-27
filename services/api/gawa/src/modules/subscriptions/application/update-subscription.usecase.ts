@@ -5,6 +5,7 @@ import {
   SUBSCRIPTION_REPOSITORY_TOKEN,
 } from '../domain/repos/subscription.repository';
 import { SubscriptionStatus } from '../domain/types/subscription.types';
+import { CancelUpcomingObligationsUseCase } from '../../obligations/application/cancel-upcoming-obligations.usecase';
 import {
   GroupAccessPolicy,
   OWNER_ONLY,
@@ -25,6 +26,7 @@ export class UpdateSubscriptionUseCase {
     @Inject(SUBSCRIPTION_REPOSITORY_TOKEN)
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly access: GroupAccessPolicy,
+    private readonly cancelUpcomingObligations: CancelUpcomingObligationsUseCase,
   ) {}
 
   async execute(
@@ -49,6 +51,13 @@ export class UpdateSubscriptionUseCase {
       input.graceHours,
       input.status,
     );
-    return this.subscriptionRepository.update(subscription);
+    const updated = await this.subscriptionRepository.update(subscription);
+
+    // Amount and grace changes apply from the next cycle; stopping billing
+    // also withdraws obligations that aren't due yet.
+    if (subscription.status !== SubscriptionStatus.ACTIVE) {
+      await this.cancelUpcomingObligations.forStoppedSubscription(input.id);
+    }
+    return updated;
   }
 }

@@ -1,5 +1,9 @@
 import { Obligation } from '../../domain/entities/obligation.entity';
-import { Currency, ObligationSourceType, ObligationStatus } from '../../domain/types/obligation.types';
+import {
+  Currency,
+  ObligationSourceType,
+  ObligationStatus,
+} from '../../domain/types/obligation.types';
 
 export interface ObligationOrmEntity {
   obligation_id: number;
@@ -13,6 +17,7 @@ export interface ObligationOrmEntity {
   currency: string;
   status: string;
   due_at: Date;
+  overdue_at: Date;
   created_at: Date;
   updated_at: Date;
 }
@@ -31,12 +36,16 @@ export class ObligationMapper {
       currency: raw.currency as Currency,
       status: raw.status as ObligationStatus,
       dueAt: raw.due_at,
+      overdueAt: raw.overdue_at,
       createdAt: raw.created_at,
       updatedAt: raw.updated_at,
     });
   }
 
-  static toOrm(obligation: Obligation): Omit<ObligationOrmEntity, 'obligation_id' | 'created_at' | 'updated_at'> & Partial<ObligationOrmEntity> {
+  static toOrm(
+    obligation: Obligation,
+  ): Omit<ObligationOrmEntity, 'obligation_id' | 'created_at' | 'updated_at'> &
+    Partial<ObligationOrmEntity> {
     return {
       obligation_id: obligation.id,
       subscription_cycle_id: obligation.subscriptionCycleId ?? null,
@@ -49,6 +58,7 @@ export class ObligationMapper {
       currency: obligation.currency as string,
       status: obligation.status as string,
       due_at: obligation.dueAt,
+      overdue_at: obligation.overdueAt,
     };
   }
 }

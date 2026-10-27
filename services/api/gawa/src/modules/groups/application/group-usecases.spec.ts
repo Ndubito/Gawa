@@ -6,6 +6,7 @@ import { DeleteGroupUseCase } from './delete-group.usecase';
 import { GroupAccessPolicy } from './group-access.policy';
 import { InMemoryGroupRepository } from '../testing/in-memory-group.repository';
 import { GroupMemberStatus } from '../domain/types/group.types';
+import { CancelUpcomingObligationsUseCase } from '../../obligations/application/cancel-upcoming-obligations.usecase';
 
 const OWNER = 1;
 const MEMBER = 2;
@@ -91,16 +92,32 @@ describe('Group use cases', () => {
   });
 
   describe('DeleteGroupUseCase', () => {
-    it('soft-deletes when the requester owns the group', async () => {
-      await new DeleteGroupUseCase(repo, access).execute(GROUP, OWNER);
+    let cancelUpcoming: jest.Mocked<CancelUpcomingObligationsUseCase>;
+
+    beforeEach(() => {
+      cancelUpcoming = {
+        forDeletedGroup: jest.fn().mockResolvedValue(0),
+      } as unknown as jest.Mocked<CancelUpcomingObligationsUseCase>;
+    });
+
+    it('soft-deletes and withdraws not-yet-due bills when the requester owns the group', async () => {
+      await new DeleteGroupUseCase(repo, access, cancelUpcoming).execute(
+        GROUP,
+        OWNER,
+      );
       expect(await repo.findById(GROUP)).toBeNull();
+      expect(cancelUpcoming.forDeletedGroup).toHaveBeenCalledWith(GROUP);
     });
 
     it.each([MEMBER, INVITEE, STRANGER])('404s user %i', async (userId) => {
       await expect(
-        new DeleteGroupUseCase(repo, access).execute(GROUP, userId),
+        new DeleteGroupUseCase(repo, access, cancelUpcoming).execute(
+          GROUP,
+          userId,
+        ),
       ).rejects.toThrow(NotFoundException);
       expect(await repo.findById(GROUP)).not.toBeNull();
+      expect(cancelUpcoming.forDeletedGroup).not.toHaveBeenCalled();
     });
   });
 });

@@ -5,6 +5,7 @@ import {
   GROUP_REPOSITORY_TOKEN,
 } from '../domain/repos/group.repository';
 import { GroupAccessPolicy, GROUP_VIEWERS } from './group-access.policy';
+import { CancelUpcomingObligationsUseCase } from '../../obligations/application/cancel-upcoming-obligations.usecase';
 
 @Injectable()
 export class RemoveGroupMemberUseCase {
@@ -12,6 +13,7 @@ export class RemoveGroupMemberUseCase {
     @Inject(GROUP_REPOSITORY_TOKEN)
     private readonly groupRepository: IGroupRepository,
     private readonly access: GroupAccessPolicy,
+    private readonly cancelUpcomingObligations: CancelUpcomingObligationsUseCase,
   ) {}
 
   // The owner can remove anyone (including revoking a pending invite);
@@ -36,5 +38,9 @@ export class RemoveGroupMemberUseCase {
     }
 
     await this.groupRepository.removeMember(groupId, memberUserId);
+    await this.cancelUpcomingObligations.forMemberLeavingGroup(
+      groupId,
+      memberUserId,
+    );
   }
 }

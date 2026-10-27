@@ -16,6 +16,7 @@ const makeObligation = () =>
     sourceType: ObligationSourceType.SUBSCRIPTION_CYCLE,
     amountDue: 50000,
     dueAt: new Date('2026-11-01'),
+    overdueAt: new Date('2026-11-02'),
   });
 
 describe('GetObligationUseCase', () => {
@@ -28,6 +29,7 @@ describe('GetObligationUseCase', () => {
       findForUser: jest.fn().mockResolvedValue([makeObligation()]),
       save: jest.fn(),
       update: jest.fn(),
+      cancelUnpaid: jest.fn(),
     };
     useCase = new GetObligationUseCase(repo);
   });

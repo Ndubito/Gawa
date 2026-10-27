@@ -9,6 +9,7 @@ import { InMemoryGroupRepository } from '../testing/in-memory-group.repository';
 import { GroupMemberStatus } from '../domain/types/group.types';
 import { IUserRepository } from '../../users/domain/repos/user.repository';
 import { User } from '../../users/domain/entities/user.entity';
+import { CancelUpcomingObligationsUseCase } from '../../obligations/application/cancel-upcoming-obligations.usecase';
 
 const OWNER = 1;
 const MEMBER = 2;
@@ -107,8 +108,16 @@ describe('Group membership use cases', () => {
   });
 
   describe('RemoveGroupMemberUseCase', () => {
+    let cancelUpcoming: jest.Mocked<CancelUpcomingObligationsUseCase>;
+
+    beforeEach(() => {
+      cancelUpcoming = {
+        forMemberLeavingGroup: jest.fn().mockResolvedValue(0),
+      } as unknown as jest.Mocked<CancelUpcomingObligationsUseCase>;
+    });
+
     const remove = (memberId: number, requester: number) =>
-      new RemoveGroupMemberUseCase(repo, access).execute(
+      new RemoveGroupMemberUseCase(repo, access, cancelUpcoming).execute(
         GROUP,
         memberId,
         requester,
@@ -117,6 +126,25 @@ describe('Group membership use cases', () => {
     it('lets the owner remove an accepted member', async () => {
       await remove(MEMBER, OWNER);
       expect(await repo.findMembership(GROUP, MEMBER)).toBeNull();
+    });
+
+    it.each([
+      [MEMBER, OWNER],
+      [MEMBER, MEMBER],
+    ])(
+      'cancels the not-yet-due bills of user %i when removed by %i',
+      async (memberId, requester) => {
+        await remove(memberId, requester);
+        expect(cancelUpcoming.forMemberLeavingGroup).toHaveBeenCalledWith(
+          GROUP,
+          memberId,
+        );
+      },
+    );
+
+    it('cancels nothing when the removal is refused', async () => {
+      await expect(remove(INVITEE, MEMBER)).rejects.toThrow(NotFoundException);
+      expect(cancelUpcoming.forMemberLeavingGroup).not.toHaveBeenCalled();
     });
 
     it('lets the owner revoke a pending invite', async () => {

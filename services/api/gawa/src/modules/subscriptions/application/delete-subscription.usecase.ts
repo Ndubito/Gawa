@@ -7,6 +7,7 @@ import {
   GroupAccessPolicy,
   OWNER_ONLY,
 } from '../../groups/application/group-access.policy';
+import { CancelUpcomingObligationsUseCase } from '../../obligations/application/cancel-upcoming-obligations.usecase';
 
 @Injectable()
 export class DeleteSubscriptionUseCase {
@@ -14,6 +15,7 @@ export class DeleteSubscriptionUseCase {
     @Inject(SUBSCRIPTION_REPOSITORY_TOKEN)
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly access: GroupAccessPolicy,
+    private readonly cancelUpcomingObligations: CancelUpcomingObligationsUseCase,
   ) {}
 
   async execute(id: number, requesterId: number): Promise<void> {
@@ -28,5 +30,6 @@ export class DeleteSubscriptionUseCase {
       `Subscription ${id} not found`,
     );
     await this.subscriptionRepository.delete(id);
+    await this.cancelUpcomingObligations.forStoppedSubscription(id);
   }
 }

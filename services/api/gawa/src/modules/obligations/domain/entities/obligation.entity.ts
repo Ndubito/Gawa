@@ -52,6 +52,9 @@ export class Obligation {
   get dueAt(): Date {
     return this.props.dueAt;
   }
+  get overdueAt(): Date {
+    return this.props.overdueAt;
+  }
   get createdAt(): Date {
     return this.props.createdAt!;
   }

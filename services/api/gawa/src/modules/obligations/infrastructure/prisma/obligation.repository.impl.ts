@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../../prisma/prisma.service';
-import { IObligationRepository } from '../../domain/repos/obligation.repository';
+import {
+  CancelUnpaidFilter,
+  IObligationRepository,
+} from '../../domain/repos/obligation.repository';
 import { Obligation } from '../../domain/entities/obligation.entity';
 import { ObligationMapper } from './obligation.orm.entity';
 
@@ -30,6 +33,22 @@ export class ObligationRepositoryImpl implements IObligationRepository {
     const saved = await this.prisma.obligation.create({ data: data as any });
     obligation.assignId(saved.obligation_id);
     return ObligationMapper.toDomain(saved);
+  }
+
+  async cancelUnpaid(filter: CancelUnpaidFilter): Promise<number> {
+    const { count } = await this.prisma.obligation.updateMany({
+      where: {
+        status: { in: ['PENDING', 'PARTIAL'] },
+        due_at: { gt: filter.dueAfter },
+        user_id: filter.userId,
+        subscription_cycle: {
+          subscription_id: filter.subscriptionId,
+          subscription: { group_id: filter.groupId },
+        },
+      },
+      data: { status: 'CANCELLED', updated_at: new Date() },
+    });
+    return count;
   }
 
   async update(obligation: Obligation): Promise<Obligation> {
