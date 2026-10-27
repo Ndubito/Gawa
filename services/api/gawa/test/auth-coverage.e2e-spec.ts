@@ -88,6 +88,8 @@ describe('Authentication coverage (e2e)', () => {
         'GET /subscriptions/:id',
         'GET /obligations',
         'GET /users/me',
+        'POST /expenses',
+        'GET /expenses/group/:groupId',
       ]),
     );
   });

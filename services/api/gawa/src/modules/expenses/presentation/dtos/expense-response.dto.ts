@@ -1,23 +1,33 @@
+import { Expense } from '../../domain/entities/expense.entity';
+
+export class ExpenseSplitResponseDto {
+  userId: number;
+  amountCents: number;
+}
+
 export class ExpenseResponseDto {
   id: number;
-  organizerId: number;
-  groupId: number | null | undefined;
+  groupId: number;
   payerId: number;
-  totalAmount: number;
   name: string;
-  description: string | null | undefined;
+  description: string | null;
+  totalAmountCents: number;
+  dueAt: Date;
   createdAt: Date;
-  updatedAt: Date;
+  splits: ExpenseSplitResponseDto[];
 
-  constructor(expense: any) {
-    this.id = expense.id;
-    this.organizerId = expense.organizerId;
+  constructor(expense: Expense) {
+    this.id = expense.id!;
     this.groupId = expense.groupId;
     this.payerId = expense.payerId;
-    this.totalAmount = expense.totalAmount;
     this.name = expense.name;
-    this.description = expense.description;
+    this.description = expense.description ?? null;
+    this.totalAmountCents = expense.totalAmount;
+    this.dueAt = expense.dueAt;
     this.createdAt = expense.createdAt;
-    this.updatedAt = expense.updatedAt;
+    this.splits = expense.splits.map((s) => ({
+      userId: s.userId,
+      amountCents: s.amount,
+    }));
   }
 }

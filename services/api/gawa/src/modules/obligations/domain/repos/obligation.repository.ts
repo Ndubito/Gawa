@@ -1,6 +1,8 @@
 import { Obligation } from '../entities/obligation.entity';
 
-// Narrows which unpaid subscription obligations to cancel; all set fields must match.
+// Narrows which unpaid *subscription* obligations to cancel; all set fields must
+// match. Expense debts are never matched: they were incurred when logged, so
+// leaving or deleting a group does not wipe them.
 export interface CancelUnpaidFilter {
   subscriptionId?: number;
   groupId?: number;

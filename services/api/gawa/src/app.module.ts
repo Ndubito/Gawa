@@ -10,8 +10,9 @@ import { SubscriptionsModule } from './modules/subscriptions/subscriptions.modul
 import { ObligationsModule } from './modules/obligations/obligations.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { BillingModule } from './modules/billing/billing.module';
+import { ExpensesModule } from './modules/expenses/expenses.module';
 
-// Expenses and transactions are not routed until their roadmap phase.
+// Transactions are not routed until the payment phase.
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -21,6 +22,7 @@ import { BillingModule } from './modules/billing/billing.module';
     ObligationsModule,
     PaymentsModule,
     BillingModule,
+    ExpensesModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: FirebaseAuthGuard }],

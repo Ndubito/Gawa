@@ -8,6 +8,8 @@ import 'package:flutter_1/features/groups/presentation/cubits/invites_cubit.dart
 import 'package:flutter_1/features/groups/presentation/widgets/invitations_section.dart';
 import 'package:flutter_1/features/subscriptions/presentation/cubits/group_subscriptions_cubit.dart';
 import 'package:flutter_1/features/subscriptions/presentation/cubits/subscriptions_cubit.dart';
+import 'package:flutter_1/features/expenses/domain/repos/expenses_repo.dart';
+import 'package:flutter_1/features/expenses/presentation/cubits/group_expenses_cubit.dart';
 import '../widgets/group_card.dart';
 import '../../../home/presentation/widgets/heading_text.dart';
 import './group_details_page.dart';
@@ -214,6 +216,7 @@ class _GroupsPageState extends State<GroupsPage> {
                 final subsRepo = context
                     .read<SubscriptionsCubit>()
                     .subscriptionsRepo;
+                final expensesRepo = context.read<ExpensesRepo>();
                 final groupId = groups[i].id;
                 Navigator.push(
                   context,
@@ -231,6 +234,12 @@ class _GroupsPageState extends State<GroupsPage> {
                             subscriptionsRepo: subsRepo,
                             groupId: groupId,
                           )..loadSubscriptions(),
+                        ),
+                        BlocProvider(
+                          create: (_) => GroupExpensesCubit(
+                            expensesRepo: expensesRepo,
+                            groupId: groupId,
+                          )..loadExpenses(),
                         ),
                       ],
                       child: GroupDetailsPage(group: groups[i]),

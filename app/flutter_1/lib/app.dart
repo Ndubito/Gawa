@@ -10,6 +10,8 @@ import 'package:flutter_1/features/groups/data/groups_repo_impl.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_cubit.dart';
 import 'package:flutter_1/features/subscriptions/data/subscriptions_repo_impl.dart';
 import 'package:flutter_1/features/subscriptions/presentation/cubits/subscriptions_cubit.dart';
+import 'package:flutter_1/features/expenses/data/expenses_repo_impl.dart';
+import 'package:flutter_1/features/expenses/domain/repos/expenses_repo.dart';
 
 import 'package:flutter_1/features/navigation/main_scaffold.dart';
 import 'package:flutter_1/themes/dark_mode.dart';
@@ -31,73 +33,79 @@ class App extends StatelessWidget {
   //subscriptions repo
   final subscriptionsRepo = SubscriptionsRepoImpl();
 
+  //expenses repo (no app-wide cubit; each group page creates its own)
+  final expensesRepo = ExpensesRepoImpl();
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      //provide cubits to app
-      providers: [
-        //auth cubit
-        BlocProvider<AuthCubit>(
-          create: (context) => AuthCubit(
-            authRepo: firebaseAuthRepo,
-            backendUserRepo: backendUserRepo,
-          )..checkAuth(),
-        ),
+    return RepositoryProvider<ExpensesRepo>.value(
+      value: expensesRepo,
+      child: MultiBlocProvider(
+        //provide cubits to app
+        providers: [
+          //auth cubit
+          BlocProvider<AuthCubit>(
+            create: (context) => AuthCubit(
+              authRepo: firebaseAuthRepo,
+              backendUserRepo: backendUserRepo,
+            )..checkAuth(),
+          ),
 
-        //groups cubit
-        BlocProvider<GroupsCubit>(
-          create: (context) => GroupsCubit(groupsRepo: groupsRepo),
-        ),
+          //groups cubit
+          BlocProvider<GroupsCubit>(
+            create: (context) => GroupsCubit(groupsRepo: groupsRepo),
+          ),
 
-        //subscriptions cubit (aggregate "my subscriptions" tab)
-        BlocProvider<SubscriptionsCubit>(
-          create: (context) =>
-              SubscriptionsCubit(subscriptionsRepo: subscriptionsRepo),
-        ),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Gawa',
-        theme: lightMode,
-        darkTheme: darkMode,
-        /*
+          //subscriptions cubit (aggregate "my subscriptions" tab)
+          BlocProvider<SubscriptionsCubit>(
+            create: (context) =>
+                SubscriptionsCubit(subscriptionsRepo: subscriptionsRepo),
+          ),
+        ],
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Gawa',
+          theme: lightMode,
+          darkTheme: darkMode,
+          /*
 
           BLOC CONSUMER - Auth
 
         */
-        home: BlocConsumer<AuthCubit, AuthState>(
-          builder: (context, state) {
-            //unauthenticated -> auth page (Register/Login)
-            if (state is Unauthenticated) {
-              return const InputPhoneNumber();
-            }
+          home: BlocConsumer<AuthCubit, AuthState>(
+            builder: (context, state) {
+              //unauthenticated -> auth page (Register/Login)
+              if (state is Unauthenticated) {
+                return const InputPhoneNumber();
+              }
 
-            //authenticated - Home Page
-            if (state is Authenticated) {
-              return const MainScaffold();
-            }
-            //code sent
-            if (state is CodeSent) {
-              return LoginPagePhone(verificatonId: state.verificationId,);
-            }
-            //wrong OTP code
-            if(state is WrongOtp){
-              return LoginPagePhone(verificatonId: state.verificationId);
-            }
-            // loading...
-            else {
-              return const LoadingScreen();
-            }
-          },
-          //listen for state changes
-          listener: (context, state) {
-            if (state is AuthError) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
-            }
-          },
+              //authenticated - Home Page
+              if (state is Authenticated) {
+                return const MainScaffold();
+              }
+              //code sent
+              if (state is CodeSent) {
+                return LoginPagePhone(verificatonId: state.verificationId);
+              }
+              //wrong OTP code
+              if (state is WrongOtp) {
+                return LoginPagePhone(verificatonId: state.verificationId);
+              }
+              // loading...
+              else {
+                return const LoadingScreen();
+              }
+            },
+            //listen for state changes
+            listener: (context, state) {
+              if (state is AuthError) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
+              }
+            },
+          ),
         ),
       ),
     );

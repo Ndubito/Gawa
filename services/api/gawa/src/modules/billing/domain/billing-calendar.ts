@@ -110,6 +110,11 @@ export function startOfLocalDay(instant: Date): Date {
   return atLocalHour(toLocalDate(instant), 0);
 }
 
+// 09:00 Nairobi, a whole number of calendar days after the given instant.
+export function reminderSlotDaysAfter(instant: Date, days: number): Date {
+  return atLocalHour(addDays(toLocalDate(instant), days), REMINDER_HOUR);
+}
+
 // First reminder slot (09:00 Nairobi) at or after the given instant.
 export function nextReminderSlot(instant: Date): Date {
   const local = toLocalDate(instant);

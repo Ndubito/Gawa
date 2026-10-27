@@ -11,6 +11,11 @@ import 'package:flutter_1/features/subscriptions/presentation/cubits/group_subsc
 import 'package:flutter_1/features/subscriptions/presentation/cubits/group_subscriptions_state.dart';
 import 'package:flutter_1/features/subscriptions/presentation/widgets/subscription_tile.dart';
 import 'package:flutter_1/features/subscriptions/presentation/widgets/add_subscription_sheet.dart';
+import 'package:flutter_1/features/expenses/domain/entities/expense_model.dart';
+import 'package:flutter_1/features/expenses/presentation/cubits/group_expenses_cubit.dart';
+import 'package:flutter_1/features/expenses/presentation/cubits/group_expenses_state.dart';
+import 'package:flutter_1/features/expenses/presentation/widgets/expense_tile.dart';
+import 'package:flutter_1/features/expenses/presentation/widgets/add_expense_sheet.dart';
 import '../widgets/group_details_header.dart';
 import '../widgets/group_member_tile.dart';
 import '../widgets/add_member_sheet.dart';
@@ -146,6 +151,68 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     }
   }
 
+  int? get _currentUserId => context.read<AuthCubit>().backendUser?.id;
+
+  Future<void> _openAddExpense(List<GroupMemberModel> members) async {
+    final cubit = context.read<GroupExpensesCubit>();
+    final added = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => BlocProvider.value(
+        value: cubit,
+        child: AddExpenseSheet(
+          members: members,
+          currentUserId: _currentUserId!,
+        ),
+      ),
+    );
+
+    if (added == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Expense added')),
+      );
+    }
+  }
+
+  Future<void> _confirmDeleteExpense(ExpenseModel expense) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete expense?'),
+        content: Text(
+          '"${expense.name}" will be removed and nobody will owe you for it '
+          'any more, including shares that are already due.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await context.read<GroupExpensesCubit>().deleteExpense(expense.id);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not delete expense: $e')),
+      );
+    }
+  }
+
   Future<void> _confirmDelete() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -263,6 +330,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
                         // Subscriptions
                         _subscriptionsCard(colors, isOwner),
+                        const SizedBox(height: 16),
+
+                        // Expenses — any member can log one they paid for
+                        _expensesCard(colors),
                         const SizedBox(height: 40),
 
                         // Danger zone — owner only
@@ -537,6 +608,136 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                           ),
                         ),
                       ],
+                    ],
+                  ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _expensesCard(ColorScheme colors) {
+    final currentUserId = _currentUserId;
+    final membersState = context.watch<GroupMembersCubit>().state;
+    final activeMembers = membersState is GroupMembersLoaded
+        ? membersState.members.where((m) => !m.isPending).toList()
+        : <GroupMemberModel>[];
+    String nameOf(int userId) =>
+        activeMembers.where((m) => m.userId == userId).firstOrNull?.displayName ??
+        'A former member';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: colors.tertiary,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: BlocBuilder<GroupExpensesCubit, GroupExpensesState>(
+        builder: (context, state) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Expenses',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: colors.onSurface,
+                    ),
+                  ),
+                  if (state is GroupExpensesLoaded) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      '${state.expenses.length}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                  const Spacer(),
+                  if (currentUserId != null && activeMembers.length > 1)
+                    TextButton.icon(
+                      onPressed: () => _openAddExpense(activeMembers),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text('Add'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: colors.inversePrimary,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              if (state is GroupExpensesLoading ||
+                  state is GroupExpensesInitial)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                )
+              else if (state is GroupExpensesError)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          "Couldn't load expenses",
+                          style: TextStyle(fontSize: 13, color: Colors.grey),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            context.read<GroupExpensesCubit>().loadExpenses(),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                )
+              else if (state is GroupExpensesLoaded)
+                if (state.expenses.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      'No expenses yet. Paid for something the group shared? '
+                      'Add it and Gawa will remind everyone to pay you back.',
+                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                    ),
+                  )
+                else
+                  Column(
+                    children: [
+                      for (final expense in state.expenses)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: ExpenseTile(
+                            expense: expense,
+                            currentUserId: currentUserId ?? -1,
+                            nameOf: nameOf,
+                            onDelete: currentUserId != null &&
+                                    expense.isPaidBy(currentUserId)
+                                ? () => _confirmDeleteExpense(expense)
+                                : null,
+                          ),
+                        ),
                     ],
                   ),
             ],
