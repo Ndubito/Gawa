@@ -14,7 +14,7 @@ export class ObligationController {
     @CurrentUserId() userId: number,
   ): Promise<ObligationResponseDto[]> {
     const obligations = await this.getObligationUseCase.executeForUser(userId);
-    return obligations.map((o) => new ObligationResponseDto(o));
+    return obligations.map((o) => new ObligationResponseDto(o, userId));
   }
 
   @Get(':id')
@@ -23,6 +23,6 @@ export class ObligationController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ObligationResponseDto> {
     const obligation = await this.getObligationUseCase.execute(id, userId);
-    return new ObligationResponseDto(obligation);
+    return new ObligationResponseDto(obligation, userId);
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_1/features/activity/presentation/pages/activity_page.dart';
+import 'package:flutter_1/features/obligations/presentation/pages/bills_page.dart';
 import 'package:flutter_1/features/groups/presentation/pages/groups_page.dart';
 import 'package:flutter_1/features/home/presentation/pages/home_page.dart';
 import 'package:flutter_1/features/profile/presentation/pages/profile_page.dart';
@@ -27,7 +27,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
-  } 
+  }
 
   void _onNavTap(int index) {
     _pageController.animateToPage(
@@ -54,7 +54,7 @@ class _MainScaffoldState extends State<MainScaffold> {
               HomePage(),
               GroupsPage(),
               SubscriptionsPage(),
-              ActivityPage(),
+              BillsPage(),
               ProfilePage(),
             ],
           ),

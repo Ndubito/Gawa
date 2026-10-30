@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -19,6 +20,8 @@ if (!admin.apps.length) {
 
 @Injectable()
 export class FirebaseAuthGuard implements CanActivate {
+  private readonly logger = new Logger(FirebaseAuthGuard.name);
+
   constructor(
     private readonly reflector: Reflector,
     private readonly syncFirebaseUser: SyncFirebaseUserUseCase,
@@ -42,7 +45,11 @@ export class FirebaseAuthGuard implements CanActivate {
       decoded = await admin
         .auth()
         .verifyIdToken(authHeader.slice('Bearer '.length));
-    } catch {
+    } catch (error) {
+      // The reason stays server-side; clients only learn the token was rejected
+      this.logger.warn(
+        `Rejected token: ${error instanceof Error ? error.message : String(error)}`,
+      );
       throw new UnauthorizedException('Invalid or expired token');
     }
 

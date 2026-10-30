@@ -1,21 +1,19 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_1/core/network/api_client.dart';
 import 'package:flutter_1/features/obligations/domain/entities/obligation_model.dart';
 import 'package:flutter_1/features/obligations/domain/repos/obligations_repo.dart';
 
 class ObligationsRepoImpl extends ObligationsRepo {
-  // TODO: inject ApiClient
+  final Dio _dio = ApiClient().dio;
 
   @override
-  Future<ObligationModel> createObligation(ObligationModel obligation) => throw UnimplementedError();
-
-  @override
-  Future<ObligationModel> getObligation(int obligationId) => throw UnimplementedError();
-
-  @override
-  Future<List<ObligationModel>> getUserObligations(int userId) => throw UnimplementedError();
-
-  @override
-  Future<List<ObligationModel>> getUserReceivables(int userId) => throw UnimplementedError();
-
-  @override
-  Future<ObligationModel> updateObligation(int obligationId, ObligationModel obligation) => throw UnimplementedError();
+  Future<List<ObligationModel>> getMyBills() async {
+    try {
+      final res = await _dio.get('/obligations');
+      final data = (res.data as List).cast<Map<String, dynamic>>();
+      return data.map(ObligationModel.fromJson).toList();
+    } on DioException catch (e) {
+      throw Exception('Failed to fetch bills: ${e.message}');
+    }
+  }
 }

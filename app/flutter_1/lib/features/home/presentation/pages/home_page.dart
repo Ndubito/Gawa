@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_1/features/obligations/presentation/cubits/obligations_cubit.dart';
+import 'package:flutter_1/features/obligations/presentation/cubits/obligations_state.dart';
+import 'package:flutter_1/features/obligations/presentation/widgets/home_bills_section.dart';
 import '../widgets/quick_action_card.dart';
-import '../widgets/charge_card.dart';
 import '../widgets/heading_text.dart';
 import '../../../groups/presentation/pages/create_group_page.dart';
 import '../../../groups/presentation/pages/groups_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<HomePage> createState() => _HomePageState();
+}
 
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    final cubit = context.read<ObligationsCubit>();
+    if (cubit.state is ObligationsInitial) cubit.loadBills();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // ignore: unused_local_variable
     final colors = Theme.of(context).colorScheme;
 
@@ -51,8 +65,7 @@ class HomePage extends StatelessWidget {
                         ],
                       ),
                       IconButton(
-                        onPressed: () {
-                        },
+                        onPressed: () {},
                         icon: Icon(
                           Icons.notifications_outlined,
                           color: colors.onSurface,
@@ -70,28 +83,8 @@ class HomePage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Next Charge Section
-                      const HeadingText(text: 'Next Charge'),
-                      const SizedBox(height: 12),
-
-                      const ChargeCard(
-                        price: '20,000 ksh',
-                        subscription: "Nathan's Allowance",
-                        dueDate: 'April  24',
-                        status: 'Paid',
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Action Required Section
-                      const HeadingText(text: 'Action Required'),
-                      const SizedBox(height: 12),
-                      const ChargeCard(
-                        price: '200 ksh',
-                        subscription: 'ICloud family',
-                        dueDate: '21 June',
-                        status: 'Failed',
-                      ),
+                      // Owe/owed totals and what needs attention
+                      const HomeBillsSection(),
 
                       const SizedBox(height: 20),
 

@@ -7,8 +7,8 @@ class ObligationsInitial extends ObligationsState {}
 class ObligationsLoading extends ObligationsState {}
 
 class ObligationsLoaded extends ObligationsState {
-  final List<ObligationModel> obligations;
-  ObligationsLoaded(this.obligations);
+  final List<ObligationModel> bills;
+  ObligationsLoaded(this.bills);
 }
 
 class ObligationsError extends ObligationsState {

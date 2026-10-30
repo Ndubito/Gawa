@@ -10,6 +10,8 @@ import 'package:flutter_1/features/groups/data/groups_repo_impl.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_cubit.dart';
 import 'package:flutter_1/features/subscriptions/data/subscriptions_repo_impl.dart';
 import 'package:flutter_1/features/subscriptions/presentation/cubits/subscriptions_cubit.dart';
+import 'package:flutter_1/features/obligations/data/obligations_repo_impl.dart';
+import 'package:flutter_1/features/obligations/presentation/cubits/obligations_cubit.dart';
 import 'package:flutter_1/features/expenses/data/expenses_repo_impl.dart';
 import 'package:flutter_1/features/expenses/domain/repos/expenses_repo.dart';
 
@@ -36,6 +38,9 @@ class App extends StatelessWidget {
   //expenses repo (no app-wide cubit; each group page creates its own)
   final expensesRepo = ExpensesRepoImpl();
 
+  //bills repo (what the user owes / is owed)
+  final obligationsRepo = ObligationsRepoImpl();
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -61,6 +66,12 @@ class App extends StatelessWidget {
           BlocProvider<SubscriptionsCubit>(
             create: (context) =>
                 SubscriptionsCubit(subscriptionsRepo: subscriptionsRepo),
+          ),
+
+          //bills cubit (shared by the Home summary and the Bills tab)
+          BlocProvider<ObligationsCubit>(
+            create: (context) =>
+                ObligationsCubit(obligationsRepo: obligationsRepo),
           ),
         ],
         child: MaterialApp(

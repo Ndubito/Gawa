@@ -9,7 +9,8 @@ describe('CancelUpcomingObligationsUseCase', () => {
   beforeEach(() => {
     repo = {
       findById: jest.fn(),
-      findForUser: jest.fn(),
+      findViewById: jest.fn(),
+      findViewsForUser: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
       cancelUnpaid: jest.fn().mockResolvedValue(2),

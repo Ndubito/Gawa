@@ -9,6 +9,7 @@ import 'package:flutter_1/features/groups/presentation/widgets/invitations_secti
 import 'package:flutter_1/features/subscriptions/presentation/cubits/group_subscriptions_cubit.dart';
 import 'package:flutter_1/features/subscriptions/presentation/cubits/subscriptions_cubit.dart';
 import 'package:flutter_1/features/subscriptions/presentation/cubits/subscriptions_state.dart';
+import 'package:flutter_1/features/obligations/presentation/cubits/obligations_cubit.dart';
 import 'package:flutter_1/features/expenses/domain/repos/expenses_repo.dart';
 import 'package:flutter_1/features/expenses/presentation/cubits/group_expenses_cubit.dart';
 import '../widgets/group_card.dart';
@@ -276,8 +277,10 @@ class _GroupsPageState extends State<GroupsPage> {
                     ),
                   ),
                 ).then((_) {
-                  // Subscriptions may have been added or removed inside
-                  if (mounted) context.read<SubscriptionsCubit>().loadMine();
+                  if (!mounted) return;
+                  // Subscriptions or expenses may have changed inside
+                  context.read<SubscriptionsCubit>().loadMine();
+                  context.read<ObligationsCubit>().loadBills();
                 });
               },
             ),
