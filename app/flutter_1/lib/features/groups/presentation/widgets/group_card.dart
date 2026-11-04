@@ -4,7 +4,10 @@ class GroupCard extends StatelessWidget {
   final String groupName;
   final String? description;
 
-  // Subscription summary — null until the group has a subscription attached
+  /// Null while still loading, so the card never shows a wrong status.
+  final int? subscriptionCount;
+
+  // Payment summary — not shown until obligation data is passed in
   final String? totalAmount;
   final String? nextCharge;
   final int paidCount;
@@ -17,6 +20,7 @@ class GroupCard extends StatelessWidget {
     super.key,
     required this.groupName,
     this.description,
+    this.subscriptionCount,
     this.totalAmount,
     this.nextCharge,
     this.paidCount = 0,
@@ -26,7 +30,11 @@ class GroupCard extends StatelessWidget {
     required this.onTap,
   });
 
-  bool get _hasSubscription => totalAmount != null;
+  bool get _known => subscriptionCount != null;
+
+  bool get _hasSubscription => (subscriptionCount ?? 0) > 0;
+
+  bool get _hasPaymentData => paidCount + pendingCount + failedCount > 0;
 
   @override
   Widget build(BuildContext context) {
@@ -83,26 +91,27 @@ class GroupCard extends StatelessWidget {
                 style: const TextStyle(fontSize: 14, color: Colors.grey),
               ),
             ],
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                const Icon(
-                  Icons.calendar_today_outlined,
-                  size: 14,
-                  color: Colors.grey,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  nextCharge != null
-                      ? 'Next charge: $nextCharge'
-                      : 'No upcoming charges',
-                  style: const TextStyle(
-                    fontSize: 13,
+            // Next-charge dates arrive with the obligations screen; until then
+            // only say "none" when there really is no subscription.
+            if (nextCharge != null || (_known && !_hasSubscription)) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.calendar_today_outlined,
+                    size: 14,
                     color: Colors.grey,
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(width: 4),
+                  Text(
+                    nextCharge != null
+                        ? 'Next charge: $nextCharge'
+                        : 'No upcoming charges',
+                    style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -115,7 +124,11 @@ class GroupCard extends StatelessWidget {
                       ? const SizedBox.shrink()
                       : Stack(
                           children: [
-                            for (int i = 0; i < memberAvatars.take(4).length; i++)
+                            for (
+                              int i = 0;
+                              i < memberAvatars.take(4).length;
+                              i++
+                            )
                               Positioned(
                                 left: i * 20.0,
                                 child: CircleAvatar(
@@ -136,22 +149,25 @@ class GroupCard extends StatelessWidget {
                         ),
                 ),
                 // Payment Status
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _statusBackground(),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _getStatusText(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: _statusForeground(),
+                if (_known)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _statusBackground(),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      _getStatusText(),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: _statusForeground(),
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ],
@@ -161,14 +177,14 @@ class GroupCard extends StatelessWidget {
   }
 
   Color _statusBackground() {
-    if (!_hasSubscription) return const Color(0xFFe3edff);
+    if (!_hasPaymentData) return const Color(0xFFe3edff);
     if (failedCount > 0) return const Color(0xFFffe0e0);
     if (pendingCount > 0) return const Color(0xFFfff4e0);
     return const Color(0xFFe0f7e9);
   }
 
   Color _statusForeground() {
-    if (!_hasSubscription) return const Color(0xFF2456c9);
+    if (!_hasPaymentData) return const Color(0xFF2456c9);
     if (failedCount > 0) return const Color(0xFFd32f2f);
     if (pendingCount > 0) return const Color(0xFFf57c00);
     return const Color(0xFF2e7d32);
@@ -177,6 +193,10 @@ class GroupCard extends StatelessWidget {
   String _getStatusText() {
     if (!_hasSubscription) {
       return 'No subscription yet';
+    } else if (!_hasPaymentData) {
+      return subscriptionCount == 1
+          ? '1 subscription'
+          : '$subscriptionCount subscriptions';
     } else if (failedCount > 0) {
       return '$paidCount paid • $failedCount failed';
     } else if (pendingCount > 0) {

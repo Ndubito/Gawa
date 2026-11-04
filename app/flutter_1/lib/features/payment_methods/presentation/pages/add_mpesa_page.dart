@@ -27,7 +27,7 @@ class AddMpesaPage extends StatelessWidget {
                  hintText: "0712 345 678",
                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                  filled: true,
-                 fillColor: Colors.white,
+                 fillColor: Theme.of(context).colorScheme.secondary,
                ),
              ),
              const SizedBox(height: 24),

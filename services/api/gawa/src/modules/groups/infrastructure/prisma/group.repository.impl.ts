@@ -3,6 +3,8 @@ import { PrismaService } from '../../../../../prisma/prisma.service';
 import { IGroupRepository } from '../../domain/repos/group.repository';
 import { Group } from '../../domain/entities/group.entity';
 import { GroupMember } from '../../domain/entities/group-member.entity';
+import { GroupInvite } from '../../domain/entities/group-invite.entity';
+import { GroupMemberStatus } from '../../domain/types/group.types';
 import { GroupMapper } from './group.orm.entity';
 
 @Injectable()
@@ -30,7 +32,11 @@ export class GroupRepositoryImpl implements IGroupRepository {
         deleted_at: null,
         OR: [
           { owner_id: userId },
-          { members: { some: { user_id: userId } } },
+          {
+            members: {
+              some: { user_id: userId, status: GroupMemberStatus.ACTIVE },
+            },
+          },
         ],
       },
       orderBy: { created_at: 'desc' },
@@ -75,13 +81,21 @@ export class GroupRepositoryImpl implements IGroupRepository {
     });
   }
 
-  async addMember(groupId: number, userId: number, role?: string): Promise<void> {
+  async addMember(groupId: number, userId: number): Promise<void> {
     await this.prisma.groupMember.create({
       data: {
         group_id: groupId,
         user_id: userId,
-        role: role ?? 'member',
+        role: 'member',
+        status: GroupMemberStatus.INVITED,
       },
+    });
+  }
+
+  async activateMember(groupId: number, userId: number): Promise<void> {
+    await this.prisma.groupMember.update({
+      where: { group_id_user_id: { group_id: groupId, user_id: userId } },
+      data: { status: GroupMemberStatus.ACTIVE },
     });
   }
 
@@ -104,16 +118,48 @@ export class GroupRepositoryImpl implements IGroupRepository {
           groupId: raw.group_id,
           userId: raw.user_id,
           role: raw.role,
+          status: raw.status as GroupMemberStatus,
           fullName: raw.user.full_name,
           phoneNumber: raw.user.phone_number,
         }),
     );
   }
 
-  async isMember(groupId: number, userId: number): Promise<boolean> {
-    const count = await this.prisma.groupMember.count({
-      where: { group_id: groupId, user_id: userId },
+  async findMembership(
+    groupId: number,
+    userId: number,
+  ): Promise<GroupMember | null> {
+    const raw = await this.prisma.groupMember.findUnique({
+      where: { group_id_user_id: { group_id: groupId, user_id: userId } },
     });
-    return count > 0;
+    return raw
+      ? new GroupMember({
+          groupId: raw.group_id,
+          userId: raw.user_id,
+          role: raw.role,
+          status: raw.status as GroupMemberStatus,
+        })
+      : null;
+  }
+
+  async findInvitesForUser(userId: number): Promise<GroupInvite[]> {
+    const raws = await this.prisma.groupMember.findMany({
+      where: {
+        user_id: userId,
+        status: GroupMemberStatus.INVITED,
+        group: { deleted_at: null },
+      },
+      include: { group: { include: { owner: true } } },
+      orderBy: { group: { created_at: 'desc' } },
+    });
+    return raws.map(
+      (raw) =>
+        new GroupInvite({
+          groupId: raw.group_id,
+          groupName: raw.group.group_name,
+          groupDescription: raw.group.group_description,
+          invitedByName: raw.group.owner.full_name,
+        }),
+    );
   }
 }

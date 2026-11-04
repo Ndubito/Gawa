@@ -1,9 +1,9 @@
 import 'package:flutter_1/features/obligations/domain/entities/obligation_model.dart';
 
+/// Bills are created by the backend (subscription cycles and expenses) and
+/// are read-only here until the pay flow exists.
 abstract class ObligationsRepo {
-  Future<ObligationModel> createObligation(ObligationModel obligation);
-  Future<ObligationModel> getObligation(int obligationId);
-  Future<List<ObligationModel>> getUserObligations(int userId);
-  Future<List<ObligationModel>> getUserReceivables(int userId);
-  Future<ObligationModel> updateObligation(int obligationId, ObligationModel obligation);
+  /// Every open bill the signed-in user owes or is owed, plus ones settled
+  /// in the last 90 days.
+  Future<List<ObligationModel>> getMyBills();
 }

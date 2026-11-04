@@ -4,6 +4,14 @@ import 'package:flutter_1/features/groups/domain/entities/group_model.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/group_members_cubit.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_cubit.dart';
 import 'package:flutter_1/features/groups/presentation/cubits/groups_state.dart';
+import 'package:flutter_1/features/groups/presentation/cubits/invites_cubit.dart';
+import 'package:flutter_1/features/groups/presentation/widgets/invitations_section.dart';
+import 'package:flutter_1/features/subscriptions/presentation/cubits/group_subscriptions_cubit.dart';
+import 'package:flutter_1/features/subscriptions/presentation/cubits/subscriptions_cubit.dart';
+import 'package:flutter_1/features/subscriptions/presentation/cubits/subscriptions_state.dart';
+import 'package:flutter_1/features/obligations/presentation/cubits/obligations_cubit.dart';
+import 'package:flutter_1/features/expenses/domain/repos/expenses_repo.dart';
+import 'package:flutter_1/features/expenses/presentation/cubits/group_expenses_cubit.dart';
 import '../widgets/group_card.dart';
 import '../../../home/presentation/widgets/heading_text.dart';
 import './group_details_page.dart';
@@ -26,60 +34,85 @@ class _GroupsPageState extends State<GroupsPage> {
     if (cubit.state is GroupsInitial) {
       cubit.loadGroups();
     }
+    // Feeds the per-group subscription counts on the cards
+    context.read<SubscriptionsCubit>().loadMine();
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: colors.surface,
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 440),
-          child: RefreshIndicator(
-            onRefresh: () => context.read<GroupsCubit>().loadGroups(),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    HeadingText(text: 'Groups'),
-                    const SizedBox(height: 12),
+    return BlocProvider(
+      create: (_) =>
+          InvitesCubit(groupsRepo: context.read<GroupsCubit>().groupsRepo)
+            ..loadInvites(),
+      child: Scaffold(
+        backgroundColor: colors.surface,
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: Builder(
+              builder: (innerContext) => RefreshIndicator(
+                onRefresh: () => Future.wait([
+                  context.read<GroupsCubit>().loadGroups(),
+                  context.read<SubscriptionsCubit>().loadMine(),
+                  innerContext.read<InvitesCubit>().loadInvites(),
+                ]),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        HeadingText(text: 'Groups'),
+                        const SizedBox(height: 12),
 
-                    LongActionButton(
-                      buttonLabel: const Text("Create New Group"),
-                      icon: const Icon(Icons.add),
-                      onClick: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CreateGroupPage(),
-                          ),
-                        );
-                      },
+                        LongActionButton(
+                          buttonLabel: const Text("Create New Group"),
+                          icon: const Icon(Icons.add),
+                          onClick: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const CreateGroupPage(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 12),
+
+                        InvitationsSection(
+                          onAccepted: () =>
+                              context.read<GroupsCubit>().loadGroups(),
+                        ),
+
+                        BlocBuilder<GroupsCubit, GroupsState>(
+                          builder: (context, state) {
+                            if (state is GroupsLoading ||
+                                state is GroupsInitial) {
+                              return _buildLoading(colors);
+                            }
+                            if (state is GroupsError) {
+                              return _buildError(
+                                context,
+                                colors,
+                                state.message,
+                              );
+                            }
+                            final groups = (state as GroupsLoaded).groups;
+                            if (groups.isEmpty) {
+                              return _buildEmpty(colors);
+                            }
+                            return _buildList(groups);
+                          },
+                        ),
+
+                        const SizedBox(
+                          height: 100,
+                        ), // Space for floating nav bar
+                      ],
                     ),
-                    const SizedBox(height: 12),
-
-                    BlocBuilder<GroupsCubit, GroupsState>(
-                      builder: (context, state) {
-                        if (state is GroupsLoading || state is GroupsInitial) {
-                          return _buildLoading(colors);
-                        }
-                        if (state is GroupsError) {
-                          return _buildError(context, colors, state.message);
-                        }
-                        final groups = (state as GroupsLoaded).groups;
-                        if (groups.isEmpty) {
-                          return _buildEmpty(colors);
-                        }
-                        return _buildList(groups);
-                      },
-                    ),
-
-                    const SizedBox(height: 100), // Space for floating nav bar
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -175,6 +208,29 @@ class _GroupsPageState extends State<GroupsPage> {
   }
 
   Widget _buildList(List<GroupModel> groups) {
+    return BlocBuilder<SubscriptionsCubit, SubscriptionsState>(
+      builder: (context, subsState) {
+        // Null until loaded, so cards don't flash "No subscription yet"
+        Map<int, int>? subscriptionCounts;
+        if (subsState is SubscriptionsLoaded) {
+          subscriptionCounts = {};
+          for (final sub in subsState.subscriptions) {
+            subscriptionCounts.update(
+              sub.groupId,
+              (n) => n + 1,
+              ifAbsent: () => 1,
+            );
+          }
+        }
+        return _buildCards(groups, subscriptionCounts);
+      },
+    );
+  }
+
+  Widget _buildCards(
+    List<GroupModel> groups,
+    Map<int, int>? subscriptionCounts,
+  ) {
     return Column(
       children: [
         for (int i = 0; i < groups.length; i++) ...[
@@ -183,20 +239,49 @@ class _GroupsPageState extends State<GroupsPage> {
             child: GroupCard(
               groupName: groups[i].name,
               description: groups[i].description,
+              subscriptionCount: subscriptionCounts == null
+                  ? null
+                  : subscriptionCounts[groups[i].id] ?? 0,
               onTap: () {
                 final groupsRepo = context.read<GroupsCubit>().groupsRepo;
+                final subsRepo = context
+                    .read<SubscriptionsCubit>()
+                    .subscriptionsRepo;
+                final expensesRepo = context.read<ExpensesRepo>();
+                final groupId = groups[i].id;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BlocProvider(
-                      create: (_) => GroupMembersCubit(
-                        groupsRepo: groupsRepo,
-                        groupId: groups[i].id,
-                      )..loadMembers(),
+                    builder: (context) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider(
+                          create: (_) => GroupMembersCubit(
+                            groupsRepo: groupsRepo,
+                            groupId: groupId,
+                          )..loadMembers(),
+                        ),
+                        BlocProvider(
+                          create: (_) => GroupSubscriptionsCubit(
+                            subscriptionsRepo: subsRepo,
+                            groupId: groupId,
+                          )..loadSubscriptions(),
+                        ),
+                        BlocProvider(
+                          create: (_) => GroupExpensesCubit(
+                            expensesRepo: expensesRepo,
+                            groupId: groupId,
+                          )..loadExpenses(),
+                        ),
+                      ],
                       child: GroupDetailsPage(group: groups[i]),
                     ),
                   ),
-                );
+                ).then((_) {
+                  if (!mounted) return;
+                  // Subscriptions or expenses may have changed inside
+                  context.read<SubscriptionsCubit>().loadMine();
+                  context.read<ObligationsCubit>().loadBills();
+                });
               },
             ),
           ),

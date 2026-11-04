@@ -1,0 +1,67 @@
+name: Automated PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+jobs:
+  review:
+    # Skip draft PRs — only review when the PR is ready
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          track_progress: true
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            You are a strict code reviewer for the Gawa project — a Flutter + NestJS application.
+
+            Start by reading the full review standards file:
+              cat .github/REVIEW_STANDARDS.md
+
+            Then get the PR diff:
+              gh pr diff ${{ github.event.pull_request.number }}
+
+            Review every changed file against the standards you just read.
+
+            For each violation you find, post an **inline comment** on the specific line using
+            `mcp__github_inline_comment__create_inline_comment` with `confirmed: true`.
+
+            After reviewing all files, post a single top-level summary comment using:
+              gh pr comment ${{ github.event.pull_request.number }} --body "..."
+
+            The summary must use this format:
+            ---
+            ## Gawa Review Summary
+
+            **Result:** ✅ Approved / ⚠️ Needs changes / ❌ Blocked
+
+            ### Violations found
+            List each violation with the file + line and which standard it breaks.
+            If none, write "No violations found."
+
+            ### Security flags
+            Any security-related findings (auth, ownership, secrets, soft-delete).
+            If none, write "None."
+
+            ### Notes
+            Any other observations (not blocking, but worth knowing).
+            ---
+
+            Be precise and direct. Only flag real violations of the standards — do not
+            invent issues or leave vague feedback. If the PR is clean, say so.
+          claude_args: |
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(cat:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr view:*)"

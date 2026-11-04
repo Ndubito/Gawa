@@ -2,7 +2,8 @@ import { Payment } from '../entities/payment.entity';
 
 export interface IPaymentRepository {
   findById(id: number): Promise<Payment | null>;
-  findAll(): Promise<Payment[]>;
+  // Payments on obligations where the user is the debtor or the creditor
+  findForUser(userId: number): Promise<Payment[]>;
   save(payment: Payment): Promise<Payment>;
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter_1/features/groups/domain/entities/group_model.dart';
 import 'package:flutter_1/features/groups/domain/entities/group_member_model.dart';
+import 'package:flutter_1/features/groups/domain/entities/group_invite_model.dart';
 import 'package:flutter_1/features/groups/domain/repos/groups_repo.dart';
 import 'package:flutter_1/core/network/api_client.dart';
 import 'package:dio/dio.dart';
@@ -104,13 +105,43 @@ class GroupsRepoImpl extends GroupsRepo {
     }
   }
 
-  //Remove a member from the group
+  //Remove a member from the group (or revoke their pending invite)
   @override
   Future<void> removeMember(int groupId, int userId) async {
     try {
       await _dio.delete('/groups/$groupId/members/$userId');
     } on DioException catch (e) {
       throw Exception('Failed to remove member: ${e.message}');
+    }
+  }
+
+  //Pending invitations for the signed-in user
+  @override
+  Future<List<GroupInviteModel>> getInvites() async {
+    try {
+      final res = await _dio.get('/groups/invites');
+      final data = (res.data as List).cast<Map<String, dynamic>>();
+      return data.map(GroupInviteModel.fromJson).toList();
+    } on DioException catch (e) {
+      throw Exception('Failed to fetch invitations: ${e.message}');
+    }
+  }
+
+  @override
+  Future<void> acceptInvite(int groupId) async {
+    try {
+      await _dio.post('/groups/$groupId/invite/accept');
+    } on DioException catch (e) {
+      throw Exception('Failed to accept invitation: ${e.message}');
+    }
+  }
+
+  @override
+  Future<void> declineInvite(int groupId) async {
+    try {
+      await _dio.post('/groups/$groupId/invite/decline');
+    } on DioException catch (e) {
+      throw Exception('Failed to decline invitation: ${e.message}');
     }
   }
 }

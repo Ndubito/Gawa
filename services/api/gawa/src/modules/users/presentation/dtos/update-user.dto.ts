@@ -1,23 +1,13 @@
-import { IsString, IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength } from 'class-validator';
 
-export class UpdateUserDto{
+// Phone number is the Firebase-verified identity and cannot be changed here.
+export class UpdateUserDto {
+  constructor(fullName: string) {
+    this.fullName = fullName;
+  }
 
-    constructor(fullName: string, email: string, phoneNumber: string){
-        this.fullName = fullName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-    }
-    
-    @IsString()
-    @IsOptional()
-    fullName: string
-
-    @IsEmail()
-    @IsOptional()
-    email: string
-
-    @IsString()
-    @IsOptional()
-    phoneNumber: string
-
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  fullName: string;
 }

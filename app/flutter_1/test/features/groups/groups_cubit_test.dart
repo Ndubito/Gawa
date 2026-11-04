@@ -1,3 +1,4 @@
+import 'package:flutter_1/features/groups/domain/entities/group_invite_model.dart';
 import 'package:flutter_1/features/groups/domain/entities/group_member_model.dart';
 import 'package:flutter_1/features/groups/domain/entities/group_model.dart';
 import 'package:flutter_1/features/groups/domain/repos/groups_repo.dart';
@@ -9,6 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 class FakeGroupsRepo extends GroupsRepo {
   final List<GroupModel> groups = [];
   final Map<int, List<GroupMemberModel>> members = {};
+  final List<GroupInviteModel> invites = [];
+  final List<int> accepted = [];
   bool failing = false;
   int _nextId = 1;
   int _nextUserId = 100;
@@ -38,6 +41,7 @@ class FakeGroupsRepo extends GroupsRepo {
       fullName: phoneNumber,
       phoneNumber: phoneNumber,
       role: 'member',
+      status: 'INVITED',
     );
     members[groupId] = [...existing, member];
     return member;
@@ -90,6 +94,25 @@ class FakeGroupsRepo extends GroupsRepo {
   Future<void> deleteGroup(int groupId) async {
     _maybeFail();
     groups.removeWhere((g) => g.id == groupId);
+  }
+
+  @override
+  Future<List<GroupInviteModel>> getInvites() async {
+    _maybeFail();
+    return List.of(invites);
+  }
+
+  @override
+  Future<void> acceptInvite(int groupId) async {
+    _maybeFail();
+    invites.removeWhere((i) => i.groupId == groupId);
+    accepted.add(groupId);
+  }
+
+  @override
+  Future<void> declineInvite(int groupId) async {
+    _maybeFail();
+    invites.removeWhere((i) => i.groupId == groupId);
   }
 }
 
